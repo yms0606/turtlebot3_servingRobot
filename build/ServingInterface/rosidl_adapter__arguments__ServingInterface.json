@@ -1,0 +1,8 @@
+{
+  "package_name": "ServingInterface",
+  "non_idl_tuples": [
+    "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/ServingInterface:msg/StartServing.msg",
+    "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/ServingInterface:srv/Order.srv",
+    "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/ServingInterface:srv/ServingStatus.srv"
+  ]
+}
