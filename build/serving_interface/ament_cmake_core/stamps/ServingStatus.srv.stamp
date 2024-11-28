@@ -1,0 +1,5 @@
+# Request
+bool is_arrived
+---
+# Response
+bool get_back

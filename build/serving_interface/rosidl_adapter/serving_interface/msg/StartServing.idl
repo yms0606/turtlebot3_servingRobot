@@ -1,0 +1,12 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from serving_interface/msg/StartServing.msg
+// generated code does not contain a copyright notice
+
+
+module serving_interface {
+  module msg {
+    struct StartServing {
+      boolean is_started;
+    };
+  };
+};
