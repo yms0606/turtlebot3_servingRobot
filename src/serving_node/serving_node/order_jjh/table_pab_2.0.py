@@ -18,10 +18,13 @@ class ROS2OrderClient(Node):
         while not self.client.wait_for_service(timeout_sec = 1.0):
             self.get_logger().info('Waiting for order...')
 
-    def send_order(self, table_num, menu, total_price):
+    def send_order(self, order_request):
+
+        table_num, menu_list, total_price = order_request
+
         request = Order.Request()
         request.table_num = table_num
-        request.menu = menu
+        request.menu = [f"{menu},{price}" for menu, price in menu_list]
         request.total_price = total_price
 
         future = self.client.call_async(request)
@@ -210,7 +213,7 @@ class TableOrderApp(QMainWindow):
         #                 print(f"잘못된 데이터 무시: {line}")
         #                 continue
         
-        conn = sqlite3.connect("/home/yms/rokey_week4_ws/turtlebot3_servingRobot/ServingRobotDB.db")
+        conn = sqlite3.connect("/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/ServingRobotDB.db")
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM menu")
         datas = cursor.fetchall()
@@ -247,7 +250,7 @@ class TableOrderApp(QMainWindow):
 
             # 메뉴 카드 추가
 
-            conn = sqlite3.connect("/home/yms/rokey_week4_ws/turtlebot3_servingRobot/ServingRobotDB.db")
+            conn = sqlite3.connect("/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/ServingRobotDB.db")
             cursor = conn.cursor()
 
             item_grid = QGridLayout()
@@ -431,11 +434,13 @@ class TableOrderApp(QMainWindow):
 
     def process_payment(self, popup):
         table_num = 3
-        menu = [f"{name} x {details['quantity']}" for name, details in self.cart.items()]
+        menu_list = [(name, details['price'] * details['quantity']) for name, details in self.cart.items() for _ in range(details['quantity'])]
         total_price = sum(item['price'] * item['quantity'] for item in self.cart.values())
 
+        order_request = (table_num, menu_list, total_price)
+
         def send_request():
-            is_accept = self.ros2_client.send_order(table_num, menu, total_price)
+            is_accept = self.ros2_client.send_order(order_request)
             if is_accept:
                 QMessageBox.information(self, "결제 완료", "주문이 접수되었습니다!")
                 self.cart.clear()
