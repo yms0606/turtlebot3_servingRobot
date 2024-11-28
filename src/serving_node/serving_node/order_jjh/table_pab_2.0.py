@@ -1,17 +1,47 @@
 import sys
 import os
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
-    QGridLayout, QScrollArea, QWidget, QTableWidget, QTableWidgetItem, QMessageBox, QDialog
-)
+import sqlite3
+import io
+from PIL import ImageQt
+import rclpy
+import threading
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QByteArray, QBuffer
+from rclpy.node import Node
+from serving_interface.srv import Order
+
+class ROS2OrderClient(Node):
+    def __init__(self):
+        super().__init__('ros2_order_client')
+        self.client = self.create_client(Order, 'process_order')
+        while not self.client.wait_for_service(timeout_sec = 1.0):
+            self.get_logger().info('Waiting for order...')
+
+    def send_order(self, table_num, menu, total_price):
+        request = Order.Request()
+        request.table_num = table_num
+        request.menu = menu
+        request.total_price = total_price
+
+        future = self.client.call_async(request)
+        rclpy.spin_until_future_complete(self, future)
+
+        if future.result():
+            response = future.result()
+            return response.is_accept
+        else:
+            self.get_logger().error('Service call failed')
+            return False
 
 class TableOrderApp(QMainWindow):
     def __init__(self, menu_files):
         super().__init__()
         self.setWindowTitle("부리부리대마왕포차")
         self.setGeometry(100, 100, 1200, 800)
+
+        self.ros2_thread = threading.Thread(target=self.init_ros2_client, daemon=True)
+        self.ros2_thread.start()
 
         # 메뉴 데이터 로드
         self.menu_data = self.load_menu_data(menu_files)
@@ -154,23 +184,42 @@ class TableOrderApp(QMainWindow):
         message_box.setStandardButtons(QMessageBox.Ok)
         message_box.exec_()
 
+    def init_ros2_client(self):
+        rclpy.init()
+        self.ros2_client = ROS2OrderClient()
+
     def load_menu_data(self, menu_files):
         """메뉴 파일에서 카테고리와 메뉴 데이터를 로드"""
         menu_data = {}
-        for file in menu_files:
-            category = os.path.splitext(os.path.basename(file))[0]  # 파일 이름을 카테고리로
-            menu_data[category] = []
-            with open(file, 'r', encoding='utf-8') as f:
-                for line in f:
-                    line = line.strip()  # 양쪽 공백 제거
-                    if not line:  # 빈 줄 무시
-                        continue
-                    try:
-                        name, price = line.split(" - ")
-                        menu_data[category].append((name, int(price)))
-                    except ValueError:
-                        print(f"잘못된 데이터 무시: {line}")
-                        continue
+        menu_data['메인메뉴'] = []
+        menu_data['사이드메뉴'] = []
+        menu_data['음료'] = []
+        menu_data['주류'] = []
+        # for file in menu_files:
+        #     category = os.path.splitext(os.path.basename(file))[0]  # 파일 이름을 카테고리로
+        #     menu_data[category] = []
+        #     with open(file, 'r', encoding='utf-8') as f:
+        #         for line in f:
+        #             line = line.strip()  # 양쪽 공백 제거
+        #             if not line:  # 빈 줄 무시
+        #                 continue
+        #             try:
+        #                 name, price = line.split(" - ")
+        #                 menu_data[category].append((name, int(price)))
+        #             except ValueError:
+        #                 print(f"잘못된 데이터 무시: {line}")
+        #                 continue
+        
+        conn = sqlite3.connect("/home/yms/rokey_week4_ws/turtlebot3_servingRobot/ServingRobotDB.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM menu")
+        datas = cursor.fetchall()
+
+        for data in datas:
+            menu_data[data[1]].append((data[0],int(data[2])))
+
+        cursor.close()
+
         return menu_data
 
     def show_all_categories(self):
@@ -197,6 +246,10 @@ class TableOrderApp(QMainWindow):
             self.category_positions[category] = category_label
 
             # 메뉴 카드 추가
+
+            conn = sqlite3.connect("/home/yms/rokey_week4_ws/turtlebot3_servingRobot/ServingRobotDB.db")
+            cursor = conn.cursor()
+
             item_grid = QGridLayout()
             for index, (menu_name, price) in enumerate(items):
                 # 메뉴 카드
@@ -211,14 +264,27 @@ class TableOrderApp(QMainWindow):
                 """)
                 card_layout = QVBoxLayout(card)
 
+                query = f"SELECT img FROM image_file WHERE name='{menu_name}'"
+                cursor.execute(query)
+                img = cursor.fetchone()
+                img = img[0]
+
+                byte_array = QByteArray(img)
+                buffer = QBuffer(byte_array)
+                buffer.open(QBuffer.ReadOnly)
+                
+                pixmap = QPixmap()
+                pixmap.loadFromData(buffer.data())
+                pixmap = pixmap.scaled(160,100, Qt.KeepAspectRatio)
+                
                 # 이미지
                 image_label = QLabel()
-                image_path = f"./images/{menu_name}.png"
-                if os.path.exists(image_path):
-                    pixmap = QPixmap(image_path).scaled(160, 100, Qt.KeepAspectRatio)
-                else:
-                    pixmap = QPixmap(160, 100)
-                    pixmap.fill(Qt.lightGray)
+                # image_path = f"./images/{menu_name}.png"
+                # if os.path.exists(image_path):
+                #     pixmap = QPixmap(image_path).scaled(160, 100, Qt.KeepAspectRatio)
+                # else:
+                #     pixmap = QPixmap(160, 100)
+                #     pixmap.fill(Qt.lightGray)
                 image_label.setPixmap(pixmap)
                 image_label.setAlignment(Qt.AlignCenter)
 
@@ -329,32 +395,32 @@ class TableOrderApp(QMainWindow):
         # 팝업 제목
         title = QLabel("장바구니의 상품과 수량을 확인하셨습니까?")
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("font-size: 14px; font-weight: bold;")
+        title.setStyleSheet("font-size: 14px; font-weight: bold; color: red;")
         popup_layout.addWidget(title)
 
         # 장바구니 내용 표시
         for name, details in self.cart.items():
             item_label = QLabel(f"{name}: {details['quantity']}개 - {details['price'] * details['quantity']:,}원")
-            item_label.setStyleSheet("font-size: 12px;")
+            item_label.setStyleSheet("font-size: 15px;")
             popup_layout.addWidget(item_label)
 
         # 총 금액 표시
         total_price = sum(item['price'] * item['quantity'] for item in self.cart.values())
         total_label = QLabel(f"합계: {total_price:,}원")
         total_label.setAlignment(Qt.AlignRight)
-        total_label.setStyleSheet("font-size: 14px; color: red;")
+        total_label.setStyleSheet("font-size: 15px; color: red;")
         popup_layout.addWidget(total_label)
 
         # 버튼 레이아웃
         button_layout = QHBoxLayout()
 
         cancel_button = QPushButton("취소")
-        cancel_button.setStyleSheet("font-size: 12px;")
+        cancel_button.setStyleSheet("font-size: 15px;")
         cancel_button.clicked.connect(popup.close)
         button_layout.addWidget(cancel_button)
 
         pay_button = QPushButton("결제하기")
-        pay_button.setStyleSheet("font-size: 12px; background-color: red; color: white;")
+        pay_button.setStyleSheet("font-size: 15px; background-color: red; color: white;")
         pay_button.clicked.connect(self.process_payment)
         pay_button.clicked.connect(popup.close)
         button_layout.addWidget(pay_button)
@@ -363,12 +429,22 @@ class TableOrderApp(QMainWindow):
 
         popup.exec_()
 
-    def process_payment(self):
-        """결제 완료 처리"""
-        QMessageBox.information(self, "결제 완료", "결제가 완료되었습니다!")
-        self.clear_cart()  # 결제 후 장바구니 초기화
+    def process_payment(self, popup):
+        table_num = 3
+        menu = [f"{name} x {details['quantity']}" for name, details in self.cart.items()]
+        total_price = sum(item['price'] * item['quantity'] for item in self.cart.values())
+
+        def send_request():
+            is_accept = self.ros2_client.send_order(table_num, menu, total_price)
+            if is_accept:
+                QMessageBox.information(self, "결제 완료", "주문이 접수되었습니다!")
+                self.cart.clear()
+                self.update_cart()
+            else:
+                QMessageBox.warning(self, "결제 실패", "주문에 실패했습니다.")
         
-        
+        threading.Thread(target=send_request, daemon=True).start()
+        popup.close()
 
 
 if __name__ == "__main__":

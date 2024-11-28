@@ -1,0 +1,2 @@
+Invoking command in '/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface -- -j12 -l12
+Invoked command in '/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface' returned '2': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface -- -j12 -l12
