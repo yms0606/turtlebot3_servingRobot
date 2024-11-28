@@ -56,8 +56,8 @@ def main(args=None):
 
     target_pose = PoseStamped()
     target_pose.header.frame_id = 'map'
-    target_pose.pose.position.x = 4.0
-    target_pose.pose.position.y = -0.5
+    target_pose.pose.position.x = 0.0
+    target_pose.pose.position.y = 1.0
     target_pose.pose.orientation.w = 0.0
 
     node.send_goal(target_pose)

@@ -101,7 +101,7 @@ class KitchenDisplay(QWidget):
         settlement_window = SettlementWindow(self.orders, self.completed_orders, self.total_price)
         settlement_window.exec_()
 
-    # 새로운 주문 추가 : [(테이블번호, (메뉴1, 가격), (메뉴2, 가격))] 형태
+    # 새로운 주문 추가 : [[테이블번호, (메뉴1, 가격), (메뉴2, 가격)]] 형태
     def add_order(self, table_number, menu_price_pairs):
         """
         새로운 주문을 추가합니다. 메뉴는 (메뉴, 가격) 형태로 받습니다.

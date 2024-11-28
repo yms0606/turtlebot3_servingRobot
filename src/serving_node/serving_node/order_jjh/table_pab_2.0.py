@@ -10,6 +10,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt, QByteArray, QBuffer
 from rclpy.node import Node
 from serving_interface.srv import Order
+from serving_interface.srv import ServingStatus
 
 class ROS2OrderClient(Node):
     def __init__(self):
@@ -36,6 +37,38 @@ class ROS2OrderClient(Node):
         else:
             self.get_logger().error('Service call failed')
             return False
+        
+class ServingStatusServer(Node):
+    def __init__(self):
+        super().__init__('serving_status_server')
+        self.srv = self.create_service(ServingStatus, 'serving_status', self.handle_serving_status)
+
+    def handle_serving_status(self, request, response):
+        if request.is_arrived:
+            self.get_logger().info('TurtleBot has arrived at the table.')
+            self.show_arrival_popup()
+            response.get_back = self.handle_return_request()
+        else:
+            self.get_logger().info('TurtleBot did not arrive.')
+            response.get_back = False
+        return response
+
+    def show_arrival_popup(self):
+        msg = QMessageBox()
+        msg.setWindowTitle("TurtleBot Status")
+        msg.setText("TurtleBot has arrived at the table!")
+        msg.setIcon(QMessageBox.Information)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+
+    def handle_return_request(self):
+        msg = QMessageBox()
+        msg.setWindowTitle("Return Request")
+        msg.setText("Do you want the TurtleBot to return?")
+        msg.setIcon(QMessageBox.Question)
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        result = msg.exec_()
+        return result == QMessageBox.Yes
 
 class TableOrderApp(QMainWindow):
     def __init__(self, menu_files):
@@ -213,7 +246,7 @@ class TableOrderApp(QMainWindow):
         #                 print(f"잘못된 데이터 무시: {line}")
         #                 continue
         
-        conn = sqlite3.connect("/home/yms/rokey_week4_ws/turtlebot3_servingRobot/ServingRobotDB.db")
+        conn = sqlite3.connect("/home/kim/Desktop/drive1_ws/turtlebot3_servingRobot/ServingRobotDB.db")
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM menu")
         datas = cursor.fetchall()
@@ -250,7 +283,7 @@ class TableOrderApp(QMainWindow):
 
             # 메뉴 카드 추가
 
-            conn = sqlite3.connect("/home/yms/rokey_week4_ws/turtlebot3_servingRobot/ServingRobotDB.db")
+            conn = sqlite3.connect("/home/kim/Desktop/drive1_ws/turtlebot3_servingRobot/ServingRobotDB.db")
             cursor = conn.cursor()
 
             item_grid = QGridLayout()
