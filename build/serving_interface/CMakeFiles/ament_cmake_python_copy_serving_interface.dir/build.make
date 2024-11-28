@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface
+CMAKE_SOURCE_DIR = /home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_interface
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface
+CMAKE_BINARY_DIR = /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface
 
 # Utility rule file for ament_cmake_python_copy_serving_interface.
 
@@ -67,7 +67,7 @@ include CMakeFiles/ament_cmake_python_copy_serving_interface.dir/compiler_depend
 include CMakeFiles/ament_cmake_python_copy_serving_interface.dir/progress.make
 
 CMakeFiles/ament_cmake_python_copy_serving_interface:
-	/usr/bin/cmake -E copy_directory /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/rosidl_generator_py/serving_interface /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/ament_cmake_python/serving_interface/serving_interface
+	/usr/bin/cmake -E copy_directory /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/rosidl_generator_py/serving_interface /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/ament_cmake_python/serving_interface/serving_interface
 
 ament_cmake_python_copy_serving_interface: CMakeFiles/ament_cmake_python_copy_serving_interface
 ament_cmake_python_copy_serving_interface: CMakeFiles/ament_cmake_python_copy_serving_interface.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/ament_cmake_python_copy_serving_interface.dir/clean:
 .PHONY : CMakeFiles/ament_cmake_python_copy_serving_interface.dir/clean
 
 CMakeFiles/ament_cmake_python_copy_serving_interface.dir/depend:
-	cd /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/CMakeFiles/ament_cmake_python_copy_serving_interface.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_interface /home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_interface /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/CMakeFiles/ament_cmake_python_copy_serving_interface.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ament_cmake_python_copy_serving_interface.dir/depend
 

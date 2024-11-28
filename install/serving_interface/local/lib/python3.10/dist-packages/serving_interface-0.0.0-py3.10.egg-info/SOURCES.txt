@@ -4,8 +4,3 @@ serving_interface.egg-info/PKG-INFO
 serving_interface.egg-info/SOURCES.txt
 serving_interface.egg-info/dependency_links.txt
 serving_interface.egg-info/top_level.txt
-serving_interface/msg/__init__.py
-serving_interface/msg/_start_serving.py
-serving_interface/srv/__init__.py
-serving_interface/srv/_order.py
-serving_interface/srv/_serving_status.py

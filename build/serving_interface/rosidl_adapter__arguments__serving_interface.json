@@ -1,8 +1,8 @@
 {
   "package_name": "serving_interface",
   "non_idl_tuples": [
-    "/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface:msg/StartServing.msg",
-    "/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface:srv/Order.srv",
-    "/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface:srv/ServingStatus.srv"
+    "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_interface:msg/StartServing.msg",
+    "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_interface:srv/Order.srv",
+    "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_interface:srv/ServingStatus.srv"
   ]
 }

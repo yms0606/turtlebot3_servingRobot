@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface
+CMAKE_SOURCE_DIR = /home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_interface
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface
+CMAKE_BINARY_DIR = /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface
 
 # Utility rule file for serving_interface_uninstall.
 
@@ -67,7 +67,7 @@ include CMakeFiles/serving_interface_uninstall.dir/compiler_depend.make
 include CMakeFiles/serving_interface_uninstall.dir/progress.make
 
 CMakeFiles/serving_interface_uninstall:
-	/usr/bin/cmake -P /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
+	/usr/bin/cmake -P /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
 
 serving_interface_uninstall: CMakeFiles/serving_interface_uninstall
 serving_interface_uninstall: CMakeFiles/serving_interface_uninstall.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/serving_interface_uninstall.dir/clean:
 .PHONY : CMakeFiles/serving_interface_uninstall.dir/clean
 
 CMakeFiles/serving_interface_uninstall.dir/depend:
-	cd /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/CMakeFiles/serving_interface_uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_interface /home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_interface /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/CMakeFiles/serving_interface_uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/serving_interface_uninstall.dir/depend
 

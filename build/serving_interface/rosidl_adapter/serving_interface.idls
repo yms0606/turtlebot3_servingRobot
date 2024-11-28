@@ -1,3 +1,3 @@
-/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface:msg/StartServing.idl
-/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface:srv/Order.idl
-/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface:srv/ServingStatus.idl
+/home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface:msg/StartServing.idl
+/home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface:srv/Order.idl
+/home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface:srv/ServingStatus.idl

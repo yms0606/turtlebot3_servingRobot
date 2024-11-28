@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface
+CMAKE_SOURCE_DIR = /home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_interface
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface
+CMAKE_BINARY_DIR = /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface
 
 # Utility rule file for serving_interface__py.
 
@@ -96,8 +96,8 @@ rosidl_generator_py/serving_interface/_serving_interface_s.ep.rosidl_typesupport
 rosidl_generator_py/serving_interface/_serving_interface_s.ep.rosidl_typesupport_fastrtps_c.c: rosidl_adapter/serving_interface/srv/ServingStatus.idl
 rosidl_generator_py/serving_interface/_serving_interface_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/builtin_interfaces/msg/Duration.idl
 rosidl_generator_py/serving_interface/_serving_interface_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/builtin_interfaces/msg/Time.idl
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Python code for ROS interfaces"
-	cd /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/serving_interface__py && /usr/bin/python3 /opt/ros/humble/share/rosidl_generator_py/cmake/../../../lib/rosidl_generator_py/rosidl_generator_py --generator-arguments-file /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/rosidl_generator_py__arguments.json --typesupport-impls "rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c;rosidl_typesupport_c"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Python code for ROS interfaces"
+	cd /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/serving_interface__py && /usr/bin/python3 /opt/ros/humble/share/rosidl_generator_py/cmake/../../../lib/rosidl_generator_py/rosidl_generator_py --generator-arguments-file /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/rosidl_generator_py__arguments.json --typesupport-impls "rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c;rosidl_typesupport_c"
 
 rosidl_generator_py/serving_interface/_serving_interface_s.ep.rosidl_typesupport_introspection_c.c: rosidl_generator_py/serving_interface/_serving_interface_s.ep.rosidl_typesupport_fastrtps_c.c
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/serving_interface/_serving_interface_s.ep.rosidl_typesupport_introspection_c.c
@@ -149,10 +149,10 @@ serving_interface__py/CMakeFiles/serving_interface__py.dir/build: serving_interf
 .PHONY : serving_interface__py/CMakeFiles/serving_interface__py.dir/build
 
 serving_interface__py/CMakeFiles/serving_interface__py.dir/clean:
-	cd /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/serving_interface__py && $(CMAKE_COMMAND) -P CMakeFiles/serving_interface__py.dir/cmake_clean.cmake
+	cd /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/serving_interface__py && $(CMAKE_COMMAND) -P CMakeFiles/serving_interface__py.dir/cmake_clean.cmake
 .PHONY : serving_interface__py/CMakeFiles/serving_interface__py.dir/clean
 
 serving_interface__py/CMakeFiles/serving_interface__py.dir/depend:
-	cd /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/serving_interface__py /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/serving_interface__py /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/serving_interface__py/CMakeFiles/serving_interface__py.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_interface /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/serving_interface__py /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/serving_interface__py /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/serving_interface__py/CMakeFiles/serving_interface__py.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : serving_interface__py/CMakeFiles/serving_interface__py.dir/depend
 
