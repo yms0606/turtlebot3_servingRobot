@@ -1,10 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QListWidget, QListWidgetItem, QTableWidget, QTableWidgetItem, QDialog
 from PyQt5.QtCore import Qt
 import sys
-from matplotlib import pyplot as plt
-import matplotlib as mpl
-from collections import Counter
-
 
 class KitchenDisplay(QWidget):
     def __init__(self):
@@ -15,8 +11,8 @@ class KitchenDisplay(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle("주방 디스플레이")  # 디스플레이 제목
-        self.setGeometry(100, 100, 1200, 700)  # 창 (x위치, y위치, 가로, 세로)
+        self.setWindowTitle("주방 디스플레이")
+        self.setGeometry(100, 100, 1200, 700)  # 창 크기 확대
 
         # 메인 레이아웃
         self.main_layout = QVBoxLayout()
@@ -25,7 +21,6 @@ class KitchenDisplay(QWidget):
         self.table_layout = QHBoxLayout()
         self.table_widgets = []
 
-        #왼쪽 세로칸 부터
         for _ in range(5):
             table_layout = QVBoxLayout()
             table_layout.setSpacing(15)
@@ -40,7 +35,7 @@ class KitchenDisplay(QWidget):
             # 조리할 메뉴 목록
             pending_menu_list = QListWidget()
             pending_menu_list.setStyleSheet("font-size: 28px; background-color: #fff; border: 1px solid #ddd;")
-            pending_menu_list.itemClicked.connect(lambda item, idx=len(self.table_widgets): self.move_to_completed(item, idx))  # 누르면 조리 완료 칸으로 가게끔
+            pending_menu_list.itemClicked.connect(lambda item, idx=len(self.table_widgets): self.move_to_completed(item, idx))
             table_layout.addWidget(pending_menu_list)
 
             # 완료된 메뉴 목록
@@ -82,12 +77,6 @@ class KitchenDisplay(QWidget):
         self.main_layout.addWidget(self.settle_button)
         self.setLayout(self.main_layout)
 
-    # 정산 창 띄우는 메서드
-    def show_settlement(self):
-        settlement_window = SettlementWindow(self.orders, self.completed_orders, self.total_price)
-        settlement_window.exec_()
-
-    # 새로운 주문 추가 : [(테이블번호, (메뉴1, 가격), (메뉴2, 가격))] 형태
     def add_order(self, table_number, menu_price_pairs):
         """
         새로운 주문을 추가합니다. 메뉴는 (메뉴, 가격) 형태로 받습니다.
@@ -192,13 +181,20 @@ class KitchenDisplay(QWidget):
 
 
 
+    def show_settlement(self):
+        """
+        정산하기 버튼을 눌렀을 때 호출
+        """
+        settlement_window = SettlementWindow(self.orders, self.completed_orders, self.total_price)
+        settlement_window.exec_()
+
+
 class SettlementWindow(QDialog):
     def __init__(self, orders, completed_orders, total_price):
         super().__init__()
         self.setWindowTitle("정산 내역")
-        self.setGeometry(200, 200, 400, 900)
+        self.setGeometry(200, 200, 1200, 900)
 
-        # 기존 정산 테이블 생성
         table_widget = QTableWidget(self)
         table_widget.setRowCount(sum(len(menu_price_pairs) for _, menu_price_pairs in orders + completed_orders))  # 모든 메뉴 수로 행 수 설정
         table_widget.setColumnCount(3)
@@ -213,46 +209,11 @@ class SettlementWindow(QDialog):
                 row += 1
 
         total_label = QLabel(f"총액: {total_price} 원", self)
-
-        # 그래프 보기 버튼 추가
-        self.graph_button = QPushButton("그래프 보기", self)
-        self.graph_button.setStyleSheet("background-color: #4CAF50; color: white; font-size: 18px; padding: 10px; "
-                                        "border-radius: 5px;")
-        self.graph_button.clicked.connect(self.show_graph)
-
-        # 레이아웃 설정
         layout = QVBoxLayout()
         layout.addWidget(table_widget)
         layout.addWidget(total_label)
-        layout.addWidget(self.graph_button)  # 그래프 버튼 추가
 
         self.setLayout(layout)
-        self.orders = orders + completed_orders  # 주문 데이터 저장
-
-    def show_graph(self):
-        """
-        메뉴별 판매 건수를 그래프로 표시합니다.
-        """
-
-        # 메뉴별 판매 건수 계산
-        menu_counts = Counter(menu for _, menu_price_pairs in self.orders for menu, _ in menu_price_pairs)
-
-        # 한글 깨짐 방지
-        plt.rcParams["font.family"] = 'NanumGothic'
-        mpl.rcParams['axes.unicode_minus'] = False  # 마이너스 폰트 깨짐 방지
-
-        # 그래프 생성
-        plt.figure(figsize=(10, 6))
-        plt.bar(menu_counts.keys(), menu_counts.values(), color='skyblue')
-        plt.title("메뉴별 판매 건수", fontsize=16)
-        plt.xlabel("메뉴", fontsize=12, )
-        plt.ylabel("판매 건수", fontsize=12)
-        plt.xticks(rotation=45, ha="right")
-        plt.yticks(range(0, max(menu_counts.values()) + 1))  # 정수로 눈금 설정
-        plt.tight_layout()
-        plt.show()
-        
-
 
 
 
@@ -269,11 +230,9 @@ if __name__ == '__main__':
 
     
     kitchen_display.add_order(2, [("양파", 1000), ("공기밥", 1000)])
-    kitchen_display.add_order(3, [("먹태", 6000), ("짜파구리", 9000), ("오뎅탕", 15000), ("된장찌개", 6000)])
+    kitchen_display.add_order(3, [("먹태", 6000), ("짜파구리", 9000), ("오뎅탕", 15000)])
     kitchen_display.add_order(7, [("과자 리필", 0), ("소주", 4000), ("맥주", 4000), ("파인샤베트", 5000), ("된장찌개", 6000), ("콜라", 2000)])
     kitchen_display.add_order(5, [("계란말이", 8000), ("라면", 3000), ("무구리", 35000)])
 
 
     sys.exit(app.exec_())
-    
-
