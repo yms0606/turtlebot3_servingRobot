@@ -1,1 +1,0 @@
-[0mCMake Error: The source "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_interface/CMakeLists.txt" does not match the source "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/ServingInterface/CMakeLists.txt" used to generate cache.  Re-run cmake with a different source directory.[0m
