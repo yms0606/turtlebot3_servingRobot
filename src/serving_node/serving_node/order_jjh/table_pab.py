@@ -58,11 +58,11 @@ class TableOrderApp(QMainWindow):
         for category in self.menu_data.keys():
             button = QPushButton(category)
             button.setStyleSheet("""
-                font-size: 18px; 
-                padding: 15px; 
-                margin: 5px 0; 
-                border: 2px solid #ccc; 
-                background-color: #ffffff; 
+                font-size: 18px;
+                padding: 15px;
+                margin: 5px 0;
+                border: 2px solid #ccc;
+                background-color: #ffffff;
                 border-radius: 10px;
                 text-align: center;
             """)
@@ -72,11 +72,11 @@ class TableOrderApp(QMainWindow):
         # 직원 호출 버튼 추가
         call_staff_button = QPushButton("직원 호출")
         call_staff_button.setStyleSheet("""
-            font-size: 18px; 
-            padding: 10px; 
-            margin: 20px 0; 
-            background-color: #FF5733; 
-            color: white; 
+            font-size: 18px;
+            padding: 10px;
+            margin: 20px 0;
+            background-color: #FF5733;
+            color: white;
             border-radius: 10px;
         """)
         call_staff_button.clicked.connect(self.call_staff)  # 클릭 이벤트 연결
