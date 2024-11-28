@@ -1,0 +1,23 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from serving_interface/srv/Order.srv
+// generated code does not contain a copyright notice
+
+
+module serving_interface {
+  module srv {
+    @verbatim (language="comment", text=
+      "Request")
+    struct Order_Request {
+      uint8 table_num;
+
+      sequence<string> menu;
+
+      uint32 total_price;
+    };
+    @verbatim (language="comment", text=
+      "Response")
+    struct Order_Response {
+      boolean is_accept;
+    };
+  };
+};
