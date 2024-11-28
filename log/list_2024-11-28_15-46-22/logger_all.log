@@ -1,0 +1,66 @@
+[0.128s] colcon DEBUG Command line arguments: ['/usr/bin/colcon', 'list', '-p', '--base-paths', '/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot']
+[0.128s] colcon DEBUG Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='list', build_base='build', ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], topological_order=False, names_only=False, paths_only=True, topological_graph=False, topological_graph_dot=False, topological_graph_density=False, topological_graph_legend=False, topological_graph_dot_cluster=False, topological_graph_dot_include_skipped=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0x728862254880>, verb_extension=<colcon_package_information.verb.list.ListVerb object at 0x7288623b9450>, main=<bound method ListVerb.main of <colcon_package_information.verb.list.ListVerb object at 0x7288623b9450>>, mixin_verb=('list',))
+[0.466s] colcon.colcon_core.package_discovery Level 1 discover_packages(colcon_meta) check parameters
+[0.467s] colcon.colcon_core.package_discovery Level 1 discover_packages(recursive) check parameters
+[0.467s] colcon.colcon_core.package_discovery Level 1 discover_packages(ignore) check parameters
+[0.467s] colcon.colcon_core.package_discovery Level 1 discover_packages(path) check parameters
+[0.467s] colcon.colcon_core.package_discovery Level 1 discover_packages(recursive) discover
+[0.467s] colcon.colcon_core.package_discovery INFO Crawling recursively for packages in '/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot'
+[0.467s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extensions ['ignore', 'ignore_ament_install']
+[0.468s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extension 'ignore'
+[0.468s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extension 'ignore_ament_install'
+[0.468s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extensions ['colcon_pkg']
+[0.468s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extension 'colcon_pkg'
+[0.468s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extensions ['colcon_meta']
+[0.468s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extension 'colcon_meta'
+[0.468s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extensions ['ros']
+[0.468s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extension 'ros'
+[0.488s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extensions ['cmake', 'python']
+[0.488s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extension 'cmake'
+[0.488s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extension 'python'
+[0.489s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extensions ['python_setup_py']
+[0.489s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot) by extension 'python_setup_py'
+[0.489s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build) by extensions ['ignore', 'ignore_ament_install']
+[0.489s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build) by extension 'ignore'
+[0.489s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build) ignored
+[0.489s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/install) by extensions ['ignore', 'ignore_ament_install']
+[0.489s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/install) by extension 'ignore'
+[0.489s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/install) ignored
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/log) by extensions ['ignore', 'ignore_ament_install']
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/log) by extension 'ignore'
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/log) ignored
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extensions ['ignore', 'ignore_ament_install']
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extension 'ignore'
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extension 'ignore_ament_install'
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extensions ['colcon_pkg']
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extension 'colcon_pkg'
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extensions ['colcon_meta']
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extension 'colcon_meta'
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extensions ['ros']
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extension 'ros'
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extensions ['cmake', 'python']
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extension 'cmake'
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extension 'python'
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extensions ['python_setup_py']
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src) by extension 'python_setup_py'
+[0.490s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface) by extensions ['ignore', 'ignore_ament_install']
+[0.491s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface) by extension 'ignore'
+[0.491s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface) by extension 'ignore_ament_install'
+[0.491s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface) by extensions ['colcon_pkg']
+[0.491s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface) by extension 'colcon_pkg'
+[0.491s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface) by extensions ['colcon_meta']
+[0.491s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface) by extension 'colcon_meta'
+[0.491s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface) by extensions ['ros']
+[0.491s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface) by extension 'ros'
+[0.495s] colcon.colcon_core.package_identification DEBUG Package '/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_interface' with type 'ros.ament_cmake' and name 'serving_interface'
+[0.495s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_node) by extensions ['ignore', 'ignore_ament_install']
+[0.496s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_node) by extension 'ignore'
+[0.496s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_node) by extension 'ignore_ament_install'
+[0.496s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_node) by extensions ['colcon_pkg']
+[0.496s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_node) by extension 'colcon_pkg'
+[0.496s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_node) by extensions ['colcon_meta']
+[0.496s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_node) by extension 'colcon_meta'
+[0.496s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_node) by extensions ['ros']
+[0.496s] colcon.colcon_core.package_identification Level 1 _identify(/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_node) by extension 'ros'
+[0.497s] colcon.colcon_core.package_identification DEBUG Package '/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/src/serving_node' with type 'ros.ament_python' and name 'serving_node'
+[0.497s] colcon.colcon_core.package_discovery Level 1 discover_packages(recursive) using defaults

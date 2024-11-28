@@ -1,9 +1,14 @@
+
+import sys
+import threading
+import matplotlib as mpl
+import rclpy
+from rclpy.node import Node
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QListWidget, QListWidgetItem, QTableWidget, QTableWidgetItem, QDialog
 from PyQt5.QtCore import Qt
-import sys
 from matplotlib import pyplot as plt
-import matplotlib as mpl
 from collections import Counter
+from serving_interface.srv import Order
 
 
 class KitchenDisplay(QWidget):
@@ -13,6 +18,15 @@ class KitchenDisplay(QWidget):
         self.completed_orders = []  # 출발된 메뉴 데이터
         self.total_price = 0  # 총 주문 가격
         self.init_ui()
+
+        self.ros2_thread = threading.Thread(target=self.init_ros2_server, daemon=True)
+        self.ros2_thread.start()
+
+    def init_ros2_server(self):
+        rclpy.init()
+        self.node = OrderServiceServer(self)
+        rclpy.spin(self.node)
+        rclpy.shutdown()
 
     def init_ui(self):
         self.setWindowTitle("주방 디스플레이")  # 디스플레이 제목
@@ -95,19 +109,29 @@ class KitchenDisplay(QWidget):
         self.orders.append((table_number, menu_price_pairs))
         self.total_price += sum(price for _, price in menu_price_pairs)
 
-        if len(self.orders) <= 5:
-            # 5개 이하일 때는 테이블 칸에 추가
-            index = len(self.orders) - 1
-            table_label, pending_menu_list, _, start_button = self.table_widgets[index]
-            table_label.setText(f"테이블 {table_number}")
-            for menu, price in menu_price_pairs:
-                item = QListWidgetItem(f"{menu}")
-                pending_menu_list.addItem(item)
+        # if len(self.orders) <= 5:
+        #     # 5개 이하일 때는 테이블 칸에 추가
+        #     index = len(self.orders) - 1
+        #     table_label, pending_menu_list, _, start_button = self.table_widgets[index]
+        #     table_label.setText(f"테이블 {table_number}")
+        #     for menu, price in menu_price_pairs:
+        #         item = QListWidgetItem(f"{menu}")
+        #         pending_menu_list.addItem(item)
 
-        else:
-            # 5개 초과 주문은 추가 주문 리스트에 표시
-            extra_order_text = f"테이블 {table_number} : " + ", ".join([f"{menu} " for menu, price in menu_price_pairs])
-            self.extra_orders_list.addItem(extra_order_text)
+        # else:
+        #     # 5개 초과 주문은 추가 주문 리스트에 표시
+        #     extra_order_text = f"테이블 {table_number} : " + ", ".join([f"{menu} " for menu, price in menu_price_pairs])
+        #     self.extra_orders_list.addItem(extra_order_text)
+
+        for table_label, pending_menu_list, _, start_button in self.table_widgets:
+            if table_label.text() == "":
+                table_label.setText(f"테이블 {table_number}")
+                for menu, price in menu_price_pairs:
+                    item = QListWidgetItem(f"{menu}")
+                    pending_menu_list.addItem(item)
+                return
+        extra_order_text = f"테이블 {table_number} : " + ", ".join([f"{menu} " for menu, price in menu_price_pairs])
+        self.extra_orders_list.addItem(extra_order_text)
 
     def move_to_completed(self, item, index):
         """
@@ -143,7 +167,7 @@ class KitchenDisplay(QWidget):
                                 "border-radius: 5px;")
 
         # 기존 테이블 내용 왼쪽으로 Shift
-        for i in range(index, 4):
+        for i in range(index, len(self.table_widgets) - 1):
             next_label, next_pending, next_completed, next_button = self.table_widgets[i + 1]
             current_label, current_pending, current_completed, current_button = self.table_widgets[i]
 
@@ -172,7 +196,7 @@ class KitchenDisplay(QWidget):
         # 추가 주문에서 첫 번째 주문을 맨 오른쪽으로 이동
         if self.extra_orders_list.count() > 0:
             next_order_text = self.extra_orders_list.takeItem(0).text()  # 첫 번째 추가 주문 텍스트를 가져옴
-            last_label, last_pending, _, last_button = self.table_widgets[4]  # 마지막 테이블 정보 가져옴
+            last_label, last_pending, _, last_button = self.table_widgets[-1]  # 마지막 테이블 정보 가져옴
             
             # 테이블 번호와 메뉴 추출
             table_info, menu_info = next_order_text.split(":")  # 테이블 정보와 메뉴 정보를 분리
@@ -190,6 +214,24 @@ class KitchenDisplay(QWidget):
             last_button.setStyleSheet("background-color: #FF5722; color: white; font-size: 18px; padding: 15px; "
                                     "border-radius: 5px;")
 
+class OrderServiceServer(Node):
+    def __init__(self, display):
+        super().__init__('order_service_server')
+        self.display = display
+        self.srv = self.create_service(Order, 'process_order', self.process_order_callback)
+
+    def process_order_callback(self, request, response):
+        self.get_logger().info(f"Received order: Table {request. table_num}, menu: {request.menu}, Total: {request.total_price}")
+
+        menu_price_pairs = []
+        for item in request.menu:
+            menu, price = item.split(",")
+            menu_price_pairs.append((menu.strip(), int(price.strip())))
+
+        self.display.add_order(request.table_num, menu_price_pairs)
+
+        response.is_accept = True
+        return response
 
 
 class SettlementWindow(QDialog):
@@ -261,17 +303,17 @@ if __name__ == '__main__':
     kitchen_display = KitchenDisplay()
     kitchen_display.show()
 
-    kitchen_display.add_order(1, [("김치찌개", 7000), ("된장찌개", 6000)])
-    kitchen_display.add_order(5, [("해물탕", 25000)])
-    kitchen_display.add_order(8, [("계란말이", 8000), ("라면", 3000), ("무구리", 35000)])
-    kitchen_display.add_order(9, [("소주", 4000), ("콜라", 2000)])
-    kitchen_display.add_order(4, [("짜파구리", 9000)])
+    # kitchen_display.add_order(1, [("김치찌개", 7000), ("된장찌개", 6000)])
+    # kitchen_display.add_order(5, [("해물탕", 25000)])
+    # kitchen_display.add_order(8, [("계란말이", 8000), ("라면", 3000), ("무구리", 35000)])
+    # kitchen_display.add_order(9, [("소주", 4000), ("콜라", 2000)])
+    # kitchen_display.add_order(4, [("짜파구리", 9000)])
 
     
-    kitchen_display.add_order(2, [("양파", 1000), ("공기밥", 1000)])
-    kitchen_display.add_order(3, [("먹태", 6000), ("짜파구리", 9000), ("오뎅탕", 15000), ("된장찌개", 6000)])
-    kitchen_display.add_order(7, [("과자 리필", 0), ("소주", 4000), ("맥주", 4000), ("파인샤베트", 5000), ("된장찌개", 6000), ("콜라", 2000)])
-    kitchen_display.add_order(5, [("계란말이", 8000), ("라면", 3000), ("무구리", 35000)])
+    # kitchen_display.add_order(2, [("양파", 1000), ("공기밥", 1000)])
+    # kitchen_display.add_order(3, [("먹태", 6000), ("짜파구리", 9000), ("오뎅탕", 15000), ("된장찌개", 6000)])
+    # kitchen_display.add_order(7, [("과자 리필", 0), ("소주", 4000), ("맥주", 4000), ("파인샤베트", 5000), ("된장찌개", 6000), ("콜라", 2000)])
+    # kitchen_display.add_order(5, [("계란말이", 8000), ("라면", 3000), ("무구리", 35000)])
 
 
     sys.exit(app.exec_())
