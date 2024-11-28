@@ -1,8 +1,0 @@
-{
-  "package_name": "serving_interface",
-  "non_idl_tuples": [
-    "/home/jsh/doosan/drive1/turtlebot3_servingRobot/src/serving_interface:msg/StartServing.msg",
-    "/home/jsh/doosan/drive1/turtlebot3_servingRobot/src/serving_interface:srv/Order.srv",
-    "/home/jsh/doosan/drive1/turtlebot3_servingRobot/src/serving_interface:srv/ServingStatus.srv"
-  ]
-}
