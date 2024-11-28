@@ -1,11 +1,11 @@
 {
   "package_name": "serving_interface",
-  "output_dir": "/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/rosidl_typesupport_introspection_cpp/serving_interface",
+  "output_dir": "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/rosidl_typesupport_introspection_cpp/serving_interface",
   "template_dir": "/opt/ros/humble/share/rosidl_typesupport_introspection_cpp/resource",
   "idl_tuples": [
-    "/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface:msg/StartServing.idl",
-    "/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface:srv/Order.idl",
-    "/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface:srv/ServingStatus.idl"
+    "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface:msg/StartServing.idl",
+    "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface:srv/Order.idl",
+    "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface:srv/ServingStatus.idl"
   ],
   "ros_interface_dependencies": [
     "builtin_interfaces:/opt/ros/humble/share/builtin_interfaces/msg/Duration.idl",
@@ -20,9 +20,9 @@
     "/opt/ros/humble/share/rosidl_typesupport_introspection_cpp/resource/msg__type_support.cpp.em",
     "/opt/ros/humble/share/rosidl_typesupport_introspection_cpp/resource/srv__rosidl_typesupport_introspection_cpp.hpp.em",
     "/opt/ros/humble/share/rosidl_typesupport_introspection_cpp/resource/srv__type_support.cpp.em",
-    "/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface/msg/StartServing.idl",
-    "/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface/srv/Order.idl",
-    "/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface/srv/ServingStatus.idl",
+    "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface/msg/StartServing.idl",
+    "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface/srv/Order.idl",
+    "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/rosidl_adapter/serving_interface/srv/ServingStatus.idl",
     "/opt/ros/humble/share/builtin_interfaces/msg/Duration.idl",
     "/opt/ros/humble/share/builtin_interfaces/msg/Time.idl"
   ]

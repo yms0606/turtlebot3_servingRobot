@@ -1,8 +1,8 @@
-# Install script for directory: /home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/build/serving_interface/serving_interface__py
+# Install script for directory: /home/yms/rokey_week4_ws/turtlebot3_servingRobot/build/serving_interface/serving_interface__py
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/install/serving_interface")
+  set(CMAKE_INSTALL_PREFIX "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/install/serving_interface")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

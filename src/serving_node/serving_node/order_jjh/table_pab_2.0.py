@@ -213,7 +213,7 @@ class TableOrderApp(QMainWindow):
         #                 print(f"잘못된 데이터 무시: {line}")
         #                 continue
         
-        conn = sqlite3.connect("/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/ServingRobotDB.db")
+        conn = sqlite3.connect("/home/yms/rokey_week4_ws/turtlebot3_servingRobot/ServingRobotDB.db")
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM menu")
         datas = cursor.fetchall()
@@ -250,7 +250,7 @@ class TableOrderApp(QMainWindow):
 
             # 메뉴 카드 추가
 
-            conn = sqlite3.connect("/home/juna/doosan_boot_work/driving1/turtlebot3_servingRobot/ServingRobotDB.db")
+            conn = sqlite3.connect("/home/yms/rokey_week4_ws/turtlebot3_servingRobot/ServingRobotDB.db")
             cursor = conn.cursor()
 
             item_grid = QGridLayout()
