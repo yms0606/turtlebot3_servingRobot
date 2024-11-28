@@ -62,7 +62,7 @@ cursor.execute("INSERT INTO menu VALUES('환타파인애플','음료',2000,300)"
 
 메뉴 추가 완료 =========== 11.28
 
-"""
+
 img_list = glob.glob("./src/serving_node/serving_node/order_jjh/images/*")
 
 for img in img_list:
@@ -71,13 +71,39 @@ for img in img_list:
         blobimg = file.read()
         
         name = img.split("/")[-1].split(".")[0]
-        query = """INSERT INTO image_file (name,img) VALUES (?, ?)"""
+        query = ""INSERT INTO image_file (name,img) VALUES (?, ?)""
         data_tuple = (name,blobimg)
 
         cursor.execute(query,data_tuple)
         print(name,"insert")
 
+이미지 추가 완료 ============= 11.28
 
+
+cursor.execute("SELECT * FROM menu")
+datas = cursor.fetchall()
+
+for data in datas:
+    print(data)
+
+('쥐포땅콩', '사이드메뉴', 7000, 2000)
+
+"""
+
+"""
+cursor.execute("INSERT INTO menu VALUES('무구리','메인메뉴',35000,10000)")
+img = "/home/yms/rokey_week4_ws/turtlebot3_servingRobot/src/serving_node/serving_node/order_jjh/images/무구리.png"
+query = "INSERT INTO image_file (name,img) VALUES (?, ?)"
+
+with open(img, 'rb') as file:
+    blobimg = file.read()
+    data_tuple = ('무구리',blobimg)
+    cursor.execute(query, data_tuple)
+    print('insert 무구리')
+
+    
+무구리 추가 =============== 11.28
+"""
 connection.commit()
 
 connection.close()
