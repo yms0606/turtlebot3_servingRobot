@@ -1,17 +1,44 @@
 import sys
 import os
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
-    QGridLayout, QScrollArea, QWidget, QTableWidget, QTableWidgetItem, QMessageBox, QDialog
-)
+import rclpy
+import threading
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
+from rclpy.node import Node
+from serving_interface.srv import Order
+
+class ROS2OrderClient(Node):
+    def __init__(self):
+        super().__init__('ros2_order_client')
+        self.client = self.create_client(Order, 'process_order')
+        while not self.client.wait_for_service(timeout_sec = 1.0):
+            self.get_logger().info('Waiting for order...')
+
+    def send_order(self, table_num, menu, total_price):
+        request = Order.Request()
+        request.table_num = table_num
+        request.menu = menu
+        request.total_price = total_price
+
+        future = self.client.call_async(request)
+        rclpy.spin_until_future_complete(self, future)
+
+        if future.result():
+            response = future.result()
+            return response.is_accept
+        else:
+            self.get_logger().error('Service call failed')
+            return False
 
 class TableOrderApp(QMainWindow):
     def __init__(self, menu_files):
         super().__init__()
         self.setWindowTitle("부리부리대마왕포차")
         self.setGeometry(100, 100, 1200, 800)
+
+        self.ros2_thread = threading.Thread(target=self.init_ros2_client, daemon=True)
+        self.ros2_thread.start()
 
         # 메뉴 데이터 로드
         self.menu_data = self.load_menu_data(menu_files)
@@ -153,6 +180,10 @@ class TableOrderApp(QMainWindow):
         message_box.setIcon(QMessageBox.Information)
         message_box.setStandardButtons(QMessageBox.Ok)
         message_box.exec_()
+
+    def init_ros2_client(self):
+        rclpy.init()
+        self.ros2_client = ROS2OrderClient()
 
     def load_menu_data(self, menu_files):
         """메뉴 파일에서 카테고리와 메뉴 데이터를 로드"""
@@ -363,12 +394,22 @@ class TableOrderApp(QMainWindow):
 
         popup.exec_()
 
-    def process_payment(self):
-        """결제 완료 처리"""
-        QMessageBox.information(self, "결제 완료", "결제가 완료되었습니다!")
-        self.clear_cart()  # 결제 후 장바구니 초기화
+    def process_payment(self, popup):
+        table_num = 3
+        menu = [f"{name} x {details['quantity']}" for name, details in self.cart.items()]
+        total_price = sum(item['price'] * item['quantity'] for item in self.cart.values())
+
+        def send_request():
+            is_accept = self.ros2_client.send_order(table_num, menu, total_price)
+            if is_accept:
+                QMessageBox.information(self, "결제 완료", "주문이 접수되었습니다!")
+                self.cart.clear()
+                self.update_cart()
+            else:
+                QMessageBox.warning(self, "결제 실패", "주문에 실패했습니다.")
         
-        
+        threading.Thread(target=send_request, daemon=True).start()
+        popup.close()
 
 
 if __name__ == "__main__":
