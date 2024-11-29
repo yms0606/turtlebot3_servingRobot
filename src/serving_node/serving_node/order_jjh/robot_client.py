@@ -22,22 +22,22 @@ class TurtleBotClient(Node):
 
         # Table positions (x, y) for each table (from the provided data)
         self.table_positions = {
-            1: (1.277221791349055, 1.6058266331783906),
-            2: (1.2993672267175878, 0.4889310444008698),
-            3: (1.3120198653499835, -0.4876605614055664),
-            4: (2.4809115369173242, 1.6540902169757656),
-            5: (2.4564183301035545, 0.5146326969974298),
-            6: (2.4100204518975747, -0.623137814815407),
-            7: (3.6524732694758115, 1.614374148835083),
-            8: (3.9135246611118406, 0.5120813128241669),
-            9: (3.755207311676657, -0.6681678861865618)
+            1: (1.28, 1.60, 0.99, 0.02),
+            2: (1.30, 0.49, -0.99, 0.02),
+            3: (1.31, -0.49, -0.66, 0.74),
+            4: (2.48, 1.65, -0.99, 0.11),
+            5: (2.46, 0.51, -0.99, 0.02),
+            6: (2.41, -0.62, -0.99, 0.01),
+            7: (3.65, 1.61, -0.99, 0.06),
+            8: (3.91, 0.51, 0.99, 0.02),
+            9: (3.76, -0.67, -0.99, 0.0)
         }
 
         # Offset to convert RViz coordinates to TurtleBot's coordinates
         self.destination_offset = (-2.0, -1.0)  # Example offset, adjust based on your setup
 
         # Example: Set the destination to table 3 (you can change the table number)
-        self.destination_table = 6
+        self.destination_table = 3
         
         self.update_destination()
 
@@ -64,7 +64,7 @@ class TurtleBotClient(Node):
         current_x, current_y = self.current_position
         distance = math.sqrt((current_x - dest_x)**2 + (current_y - dest_y)**2)
         self.get_logger().info(f'Distance to destination: {distance}')
-        return distance < 0.7  # Threshold for arrival (in meters)
+        return distance < 0.6  # Threshold for arrival (in meters)
 
     def send_request(self):
         """Send the arrival status to the server."""

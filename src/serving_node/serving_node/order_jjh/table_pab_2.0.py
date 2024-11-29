@@ -380,10 +380,23 @@ class TableOrderApp(QMainWindow):
     def show_popup(self):
         # 메시지 박스 생성
         msg = QMessageBox()
-        msg.setWindowTitle("Alarm")
-        msg.setText("Arrived!")
+        msg.setWindowTitle("로봇 도착 알림")
+        msg.setText("음식이 도착했습니다.\n음식을 수령하신 후 복귀 버튼을 눌러주세요!")
         msg.setIcon(QMessageBox.Information)
         
+        # 팝업창 크기 조정 (스타일시트 활용)
+        msg.setStyleSheet("""
+            QMessageBox {
+                min-width: 400px;  /* 팝업 가로 크기 */
+                min-height: 200px; /* 팝업 세로 크기 */
+                font-size: 14px;   /* 기본 텍스트 크기 */
+            }
+            QPushButton {
+                font-size: 18px;
+                padding: 10px 20px;
+            }
+        """)
+
         # 커스텀 버튼 생성
         btn_return = QPushButton("복귀")
         btn_return.setStyleSheet("font-size: 18px; padding: 10px 20px;")  # 버튼 크기 및 스타일 설정
@@ -391,6 +404,8 @@ class TableOrderApp(QMainWindow):
         
         # 메시지 박스 실행
         msg.exec_()
+
+
 
     def add_to_cart(self, name, price):
         """메뉴를 장바구니에 추가"""
