@@ -11,13 +11,35 @@ from PyQt5.QtCore import Qt, QByteArray, QBuffer
 from rclpy.node import Node
 from serving_interface.srv import Order
 from serving_interface.srv import ServingStatus
+import time
+
+is_accept = False
 
 class ROS2OrderClient(Node):
-    def __init__(self):
+    def __init__(self, ui_window):
         super().__init__('ros2_order_client')
         self.client = self.create_client(Order, 'process_order')
-        while not self.client.wait_for_service(timeout_sec = 1.0):
-            self.get_logger().info('Waiting for order...')
+
+        #NEW
+        self.ui_window = ui_window
+        self.srv = self.create_service(ServingStatus, 'serving_status', self.handle_serving_status)
+        #NEW
+
+        #while not self.client.wait_for_service(timeout_sec = 1.0):
+        #    self.get_logger().info('Waiting for order...')
+
+    #NEW
+    def handle_serving_status(self, request, response):
+        """Handle serving status and show popup when robot arrives."""
+        if request.is_arrived:
+            self.get_logger().info('Robot has arrived at the destination.')
+            #self.ui_window.show_popup()  # 테이블 오더 화면에 팝업 띄우기
+        else:
+            self.get_logger().info('Robot has not arrived yet.')
+
+        response.get_back = False  # 이 값을 적절히 수정
+        return response
+    #NEW
 
     def send_order(self, order_request):
 
@@ -29,46 +51,48 @@ class ROS2OrderClient(Node):
         request.total_price = total_price
 
         future = self.client.call_async(request)
-        rclpy.spin_until_future_complete(self, future)
 
-        if future.result():
-            response = future.result()
-            return response.is_accept
+        #return True
+        #NEW
+        future.add_done_callback(self.callback_request)
+        #NEW
+        
+        #rclpy.spin_until_future_complete(self, future)
+
+        #if future.result():
+        #    response = future.result()
+        #    return response.is_accept
+        #else:
+        #    self.get_logger().error('Service call failed')
+        #    return False
+    
+    def callback_request(self, res):
+        global is_accept
+        if res.result():
+            response = res.result()
+            is_accept = True
         else:
             self.get_logger().error('Service call failed')
-            return False
-        
-class ServingStatusServer(Node):
-    def __init__(self):
-        super().__init__('serving_status_server')
+            is_accept = False
+
+class TableOrderServer(Node):
+    def __init__(self, ui_window):
+        super().__init__('table_order_server')
         self.srv = self.create_service(ServingStatus, 'serving_status', self.handle_serving_status)
+        self.ui_window = ui_window  # PyQt5 테이블 오더 화면 객체 전달
 
     def handle_serving_status(self, request, response):
+        """Handle serving status and show popup when robot arrives."""
         if request.is_arrived:
-            self.get_logger().info('TurtleBot has arrived at the table.')
-            self.show_arrival_popup()
-            response.get_back = self.handle_return_request()
+            self.get_logger().info('Robot has arrived at the destination.')
+            #self.ui_window.show_popup()  # 테이블 오더 화면에 팝업 띄우기
         else:
-            self.get_logger().info('TurtleBot did not arrive.')
-            response.get_back = False
+            self.get_logger().info('Robot has not arrived yet.')
+
+        response.get_back = False  # 이 값을 적절히 수정
         return response
+        
 
-    def show_arrival_popup(self):
-        msg = QMessageBox()
-        msg.setWindowTitle("TurtleBot Status")
-        msg.setText("TurtleBot has arrived at the table!")
-        msg.setIcon(QMessageBox.Information)
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
-
-    def handle_return_request(self):
-        msg = QMessageBox()
-        msg.setWindowTitle("Return Request")
-        msg.setText("Do you want the TurtleBot to return?")
-        msg.setIcon(QMessageBox.Question)
-        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        result = msg.exec_()
-        return result == QMessageBox.Yes
 
 class TableOrderApp(QMainWindow):
     def __init__(self, menu_files):
@@ -222,7 +246,13 @@ class TableOrderApp(QMainWindow):
 
     def init_ros2_client(self):
         rclpy.init()
-        self.ros2_client = ROS2OrderClient()
+        #self.ros2_clinet = ROS2OrderClient()
+
+        #NEW
+        self.ros2_client = ROS2OrderClient(self)
+        #self.ros2_server = TableOrderServer(self)
+        rclpy.spin(self.ros2_client)
+        #NEW
 
     def load_menu_data(self, menu_files):
         """메뉴 파일에서 카테고리와 메뉴 데이터를 로드"""
@@ -345,7 +375,6 @@ class TableOrderApp(QMainWindow):
                 row, col = divmod(index, 3)
                 item_grid.addWidget(card, row, col)
 
-            cursor.close()
             self.menu_layout.addLayout(item_grid)
 
     def add_to_cart(self, name, price):
@@ -468,13 +497,15 @@ class TableOrderApp(QMainWindow):
 
     def process_payment(self, popup):
         table_num = 3
-        menu_list = [(name, details['price'] ) for name, details in self.cart.items() for _ in range(details['quantity'])]
+        menu_list = [(name, details['price'] * details['quantity']) for name, details in self.cart.items() for _ in range(details['quantity'])]
         total_price = sum(item['price'] * item['quantity'] for item in self.cart.values())
 
         order_request = (table_num, menu_list, total_price)
 
         def send_request():
-            is_accept = self.ros2_client.send_order(order_request)
+            global is_accept
+            self.ros2_client.send_order(order_request)
+            time.sleep(1)
             if is_accept:
                 QMessageBox.information(self, "결제 완료", "주문이 접수되었습니다!")
                 self.cart.clear()
