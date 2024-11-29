@@ -1,6 +1,7 @@
 import sqlite3
 import glob
 from datetime import datetime,timedelta
+import matplotlib.pyplot as plt 
 
 connection = sqlite3.connect("ServingRobotDB.db")
 cursor = connection.cursor()
@@ -123,14 +124,16 @@ cursor.execute("INSERT INTO pose VALUES(9,3.755,-0.668,-0.999,0.008)")
 # 일 매출, 월 매출, 메뉴별 판매량, 영업 이익
 
 
-"""==========일 매출============
+"""==========일 매출============"""
 total_prices = []
+today_dates = []
 
 for i in range(5):
     today = (datetime.now() + timedelta(days=-i)).strftime("%y%m%d")
     qeury = f"SELECT * FROM menu_order WHERE order_number LIKE '{today}%'"
     cursor.execute(qeury)
     orders = cursor.fetchall()
+    today_dates.append(today)
     if len(orders) == 0 :
         total_prices.append(0)
     else:
@@ -144,12 +147,13 @@ for i in range(5):
                 cursor.execute(qeury)
                 price = cursor.fetchone()[0]
                 sum += price
-                print(menu,price)
         total_prices.append(sum)
 
-print(total_prices)
-"""
+#print(total_prices)
+#print(today_dates)
 
+plt.plot(today_dates,total_prices)
+plt.show()
 
 connection.commit()
 
