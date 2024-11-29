@@ -1,5 +1,6 @@
 import sqlite3
 import glob
+from datetime import datetime,timedelta
 
 connection = sqlite3.connect("ServingRobotDB.db")
 cursor = connection.cursor()
@@ -104,6 +105,24 @@ with open(img, 'rb') as file:
     
 무구리 추가 =============== 11.28
 """
+
+# 일 매출, 월 매출, 메뉴별 판매량, 영업 이익
+
+total_prices = []
+
+for i in range(5):
+    today = (datetime.now() + timedelta(day=-i)).strftime("%y%m%d")
+    qeury = f"SELECT * FROM menu_order WHERE order_number LIKE '{today}%'"
+    cursor.execute(qeury)
+    orders = cursor.fetchall()
+    if len(orders) == 0 :
+        total_prices.append(0)
+    else:
+        sum = 0
+        for order in orders:
+            menu_list = order[2]
+
+
 connection.commit()
 
 connection.close()
