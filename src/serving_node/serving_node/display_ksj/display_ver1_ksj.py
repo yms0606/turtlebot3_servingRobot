@@ -9,7 +9,15 @@ from PyQt5.QtCore import Qt
 from matplotlib import pyplot as plt
 from collections import Counter
 from serving_interface.srv import Order
+import sqlite3
+from datetime import datetime
 
+"""기본 설정"""
+today_day = datetime.now().strftime("%y%m%d")
+conn = None
+cursor = None
+today_count = None
+"""========"""
 
 class KitchenDisplay(QWidget):
     def __init__(self):
@@ -23,6 +31,13 @@ class KitchenDisplay(QWidget):
         self.ros2_thread.start()
 
     def init_ros2_server(self):
+        global conn, cursor, today_count
+        conn = sqlite3.connect("../../../../ServingRobotDB.db",check_same_thread=True)
+        cursor = conn.cursor()
+        query = f"SELECT COUNT(*) FROM menu_order WHERE order_number LIKE '{today_day}%'"
+        cursor.execute(query)
+        today_count = cursor.fetchone()[0]
+
         rclpy.init()
         self.node = OrderServiceServer(self)
         rclpy.spin(self.node)
@@ -221,12 +236,29 @@ class OrderServiceServer(Node):
         self.srv = self.create_service(Order, 'process_order', self.process_order_callback)
 
     def process_order_callback(self, request, response):
-        self.get_logger().info(f"Received order: Table {request. table_num}, menu: {request.menu}, Total: {request.total_price}")
+        
+        self.get_logger().info(f"Received order: Table {request.table_num}, menu: {request.menu}, Total: {request.total_price}")
 
         menu_price_pairs = []
+        menu_list = []
         for item in request.menu:
             menu, price = item.split(",")
             menu_price_pairs.append((menu.strip(), int(price.strip())))
+            menu_list.append(menu)
+        
+        """주문 정보 삽입"""
+        global today_count, today_day, cursor, conn
+        menu_string = ",".join(menu_list)
+        today_count +=1
+        order_number = int(today_day+str(today_count))
+        table_number = request.table_num
+        order_time = datetime.now().strftime("%y%m%d %H%M%S")
+
+        query = f"INSERT INTO menu_order VALUES ({order_number},'{order_time}','{menu_string}',{table_number})"
+        cursor.execute(query)
+        conn.commit()
+        self.get_logger().info("order info insert")
+        """=============="""
 
         self.display.add_order(request.table_num, menu_price_pairs)
 
@@ -315,7 +347,7 @@ if __name__ == '__main__':
     # kitchen_display.add_order(7, [("과자 리필", 0), ("소주", 4000), ("맥주", 4000), ("파인샤베트", 5000), ("된장찌개", 6000), ("콜라", 2000)])
     # kitchen_display.add_order(5, [("계란말이", 8000), ("라면", 3000), ("무구리", 35000)])
 
-
     sys.exit(app.exec_())
+    cursor.close()
     
 

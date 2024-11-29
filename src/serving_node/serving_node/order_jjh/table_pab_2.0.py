@@ -345,6 +345,7 @@ class TableOrderApp(QMainWindow):
                 row, col = divmod(index, 3)
                 item_grid.addWidget(card, row, col)
 
+            cursor.close()
             self.menu_layout.addLayout(item_grid)
 
     def add_to_cart(self, name, price):
@@ -467,7 +468,7 @@ class TableOrderApp(QMainWindow):
 
     def process_payment(self, popup):
         table_num = 3
-        menu_list = [(name, details['price'] * details['quantity']) for name, details in self.cart.items() for _ in range(details['quantity'])]
+        menu_list = [(name, details['price'] ) for name, details in self.cart.items() for _ in range(details['quantity'])]
         total_price = sum(item['price'] * item['quantity'] for item in self.cart.values())
 
         order_request = (table_num, menu_list, total_price)
@@ -482,7 +483,7 @@ class TableOrderApp(QMainWindow):
                 QMessageBox.warning(self, "결제 실패", "주문에 실패했습니다.")
         
         threading.Thread(target=send_request, daemon=True).start()
-        popup.close()
+        #popup.close()
 
 
 if __name__ == "__main__":
