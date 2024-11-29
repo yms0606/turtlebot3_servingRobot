@@ -105,13 +105,29 @@ with open(img, 'rb') as file:
     
 무구리 추가 =============== 11.28
 """
-
+"""
+cursor.execute("ALTER table pose ADD column ori_z REAL")
+cursor.execute("ALTER table pose ADD column ori_w REAL")
+"""
+""" ======== 좌표 추가
+cursor.execute("INSERT INTO pose VALUES(1,1.277,1.605,0.999,0.026)")
+cursor.execute("INSERT INTO pose VALUES(2,1.299,0.489,-0.999,0.024)")
+cursor.execute("INSERT INTO pose VALUES(3,1.312,-0.488,-0.666,0.746)")
+cursor.execute("INSERT INTO pose VALUES(4,2.481,1.654,-0.993,0.117)")
+cursor.execute("INSERT INTO pose VALUES(5,2.456,0.515,-0.999,0.018)")
+cursor.execute("INSERT INTO pose VALUES(6,2.41,-0.623,-0.999,0.01)")
+cursor.execute("INSERT INTO pose VALUES(7,3.65,1.614,-0.999,0.059)")
+cursor.execute("INSERT INTO pose VALUES(8,3.913,0.512,0.999,0.023)")
+cursor.execute("INSERT INTO pose VALUES(9,3.755,-0.668,-0.999,0.008)")
+"""
 # 일 매출, 월 매출, 메뉴별 판매량, 영업 이익
 
+
+"""==========일 매출============
 total_prices = []
 
 for i in range(5):
-    today = (datetime.now() + timedelta(day=-i)).strftime("%y%m%d")
+    today = (datetime.now() + timedelta(days=-i)).strftime("%y%m%d")
     qeury = f"SELECT * FROM menu_order WHERE order_number LIKE '{today}%'"
     cursor.execute(qeury)
     orders = cursor.fetchall()
@@ -121,6 +137,18 @@ for i in range(5):
         sum = 0
         for order in orders:
             menu_list = order[2]
+            menu_list = menu_list.split(',')
+
+            for menu in menu_list:
+                qeury = f"SELECT price FROM menu WHERE name='{menu}'"
+                cursor.execute(qeury)
+                price = cursor.fetchone()[0]
+                sum += price
+                print(menu,price)
+        total_prices.append(sum)
+
+print(total_prices)
+"""
 
 
 connection.commit()
