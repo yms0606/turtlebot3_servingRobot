@@ -1,9 +1,13 @@
 
 import sys
 import threading
-import matplotlib as mpl
+import time
 import rclpy
+import matplotlib as mpl
 from rclpy.node import Node
+from rclpy.action import ActionClient
+from nav2_msgs.action import NavigateToPose
+from geometry_msgs.msg import PoseStamped
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QListWidget, QListWidgetItem, QTableWidget, QTableWidgetItem, QDialog
 from PyQt5.QtCore import Qt
 from matplotlib import pyplot as plt
@@ -172,6 +176,8 @@ class KitchenDisplay(QWidget):
         """
         # 완료된 메뉴 초기화
         table_label, pending_menu_list, completed_menu_list, start_button = self.table_widgets[index]
+        table_number = table_label.text().replace("테이블 ", "").strip()
+
         completed_menu_list.clear()
         table_label.setText("")
         pending_menu_list.clear()
@@ -228,15 +234,17 @@ class KitchenDisplay(QWidget):
             last_button.setEnabled(False)
             last_button.setStyleSheet("background-color: #FF5722; color: white; font-size: 18px; padding: 15px; "
                                     "border-radius: 5px;")
+        if table_number:
+            self.node.send_goal(int(table_number))
 
 class OrderServiceServer(Node):
     def __init__(self, display):
         super().__init__('order_service_server')
         self.display = display
         self.srv = self.create_service(Order, 'process_order', self.process_order_callback)
+        self.action_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
 
     def process_order_callback(self, request, response):
-        
         self.get_logger().info(f"Received order: Table {request.table_num}, menu: {request.menu}, Total: {request.total_price}")
 
         menu_price_pairs = []
@@ -264,6 +272,52 @@ class OrderServiceServer(Node):
 
         response.is_accept = True
         return response
+
+    def send_goal(self, table_number):
+        self.action_client.wait_for_server()
+        self.get_logger().info(f"Sending TurtleBot to table {table_number}")
+
+        goal_msg = NavigateToPose.Goal()
+        goal_msg.pose = self.get_table_pose(table_number)
+        future = self.action_client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
+        future.add_done_callback(self.goal_response_callback)
+
+    def get_table_pose(self, table_number):
+        pose = PoseStamped()
+        pose.header.frame_id = 'map'
+        pose.header.stamp = self.get_clock().now().to_msg()
+
+        table_positions = {
+            1: (2.0, 1.0, 0.0, 1.0),
+            2: (4.0, 2.0, 0.0, 1.0),
+            3: (1.4, -0.58, -0.99, 0.097),
+            4: (8.0, 4.0, 0.0, 1.0),
+            5: (10.0, 5.0, 0.0, 1.0),
+        }
+
+        x, y, z, w = table_positions.get(table_number, (0.0, 0.0, 0.0, 1.0))
+        pose.pose.position.x = x
+        pose.pose.position.y = y
+        pose.pose.orientation.z = z
+        pose.pose.orientation.w = w
+
+        return pose
+
+    def feedback_callback(self, feedback_msg):
+        feedback = feedback_msg.feedback
+        self.get_logger().info(f"Remaining distance: {feedback.distance_remaining:.2f}m")
+
+    def goal_response_callback(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().info("Goal rejected")
+            return
+
+        self.get_logger().info("Goal accepted")
+        goal_handle.get_result_async().add_done_callback(self.result_callback)
+
+    def result_callback(self, future):
+        self.get_logger().info("Goal result: TurtleBot has reached the table.")
 
 
 class SettlementWindow(QDialog):
@@ -325,9 +379,6 @@ class SettlementWindow(QDialog):
         plt.yticks(range(0, max(menu_counts.values()) + 1))  # 정수로 눈금 설정
         plt.tight_layout()
         plt.show()
-        
-
-
 
 
 if __name__ == '__main__':
