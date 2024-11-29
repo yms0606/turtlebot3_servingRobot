@@ -37,7 +37,8 @@ class TurtleBotClient(Node):
         self.destination_offset = (-2.0, -1.0)  # Example offset, adjust based on your setup
 
         # Example: Set the destination to table 3 (you can change the table number)
-        self.destination_table = 3
+        self.destination_table = 6
+        
         self.update_destination()
 
     def update_destination(self):

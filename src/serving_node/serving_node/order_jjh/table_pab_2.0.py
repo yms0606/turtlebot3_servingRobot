@@ -33,7 +33,7 @@ class ROS2OrderClient(Node):
         """Handle serving status and show popup when robot arrives."""
         if request.is_arrived:
             self.get_logger().info('Robot has arrived at the destination.')
-            #self.ui_window.show_popup()  # 테이블 오더 화면에 팝업 띄우기
+            self.ui_window.show_popup()  # 테이블 오더 화면에 팝업 띄우기
         else:
             self.get_logger().info('Robot has not arrived yet.')
 
@@ -376,6 +376,21 @@ class TableOrderApp(QMainWindow):
                 item_grid.addWidget(card, row, col)
 
             self.menu_layout.addLayout(item_grid)
+
+    def show_popup(self):
+        # 메시지 박스 생성
+        msg = QMessageBox()
+        msg.setWindowTitle("Alarm")
+        msg.setText("Arrived!")
+        msg.setIcon(QMessageBox.Information)
+        
+        # 커스텀 버튼 생성
+        btn_return = QPushButton("복귀")
+        btn_return.setStyleSheet("font-size: 18px; padding: 10px 20px;")  # 버튼 크기 및 스타일 설정
+        msg.addButton(btn_return, QMessageBox.AcceptRole)
+        
+        # 메시지 박스 실행
+        msg.exec_()
 
     def add_to_cart(self, name, price):
         """메뉴를 장바구니에 추가"""
