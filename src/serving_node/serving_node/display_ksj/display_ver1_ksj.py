@@ -1,15 +1,14 @@
-
 import sys
 import threading
-import time
+from datetime import datetime
 import rclpy
 import matplotlib as mpl
 from rclpy.node import Node
 from rclpy.action import ActionClient
 from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QListWidget, QListWidgetItem, QTableWidget, QTableWidgetItem, QDialog
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QListWidget, QListWidgetItem, QTableWidget, QTableWidgetItem, QDialog, QMessageBox
+from PyQt5.QtCore import Qt, QTimer
 from matplotlib import pyplot as plt
 from collections import Counter
 from serving_interface.srv import Order
@@ -21,6 +20,7 @@ today_day = datetime.now().strftime("%y%m%d")
 conn = None
 cursor = None
 today_count = None
+robot_arrived = False
 """========"""
 
 class KitchenDisplay(QWidget):
@@ -34,9 +34,15 @@ class KitchenDisplay(QWidget):
         self.ros2_thread = threading.Thread(target=self.init_ros2_server, daemon=True)
         self.ros2_thread.start()
 
+        self.popup_active = False
+
+        self.check_timer = QTimer()
+        self.check_timer.timeout.connect(self.check_robot_arrival)
+        self.check_timer.start(100)
+
     def init_ros2_server(self):
         global conn, cursor, today_count
-        conn = sqlite3.connect("../../../../ServingRobotDB.db",check_same_thread=True)
+        conn = sqlite3.connect("../../../../ServingRobotDB.db",check_same_thread=False)
         cursor = conn.cursor()
         query = f"SELECT COUNT(*) FROM menu_order WHERE order_number LIKE '{today_day}%'"
         cursor.execute(query)
@@ -119,6 +125,35 @@ class KitchenDisplay(QWidget):
     def show_settlement(self):
         settlement_window = SettlementWindow(self.orders, self.completed_orders, self.total_price)
         settlement_window.exec_()
+
+    def check_robot_arrival(self):
+        global robot_arrived
+
+        if robot_arrived and not self.popup_active:
+
+            self.popup_active = True
+            self.show_popup("음식이 테이블에 도착했습니다!")
+
+    def show_popup(self, message):
+        popup = QDialog(self)
+        popup.setWindowTitle("로봇 도착")
+        popup.setWindowModality(Qt.ApplicationModal)
+        popup.setGeometry(300, 300, 400, 200)
+
+        label = QLabel(message, popup)
+        label.setAlignment(Qt.AlignCenter)
+        label.setGeometry(50, 50, 300, 100)
+
+        popup.show()
+
+        QTimer.singleShot(3000, lambda: self.close_popup(popup))
+
+    def close_popup(self, popup):
+        global robot_arrived
+        popup.close()
+        robot_arrived = False
+        self.popup_active = False
+
 
     # 새로운 주문 추가 : [[테이블번호, (메뉴1, 가격), (메뉴2, 가격)]] 형태
     def add_order(self, table_number, menu_price_pairs):
@@ -288,11 +323,15 @@ class OrderServiceServer(Node):
         pose.header.stamp = self.get_clock().now().to_msg()
 
         table_positions = {
-            1: (2.0, 1.0, 0.0, 1.0),
-            2: (4.0, 2.0, 0.0, 1.0),
-            3: (1.4, -0.58, -0.99, 0.097),
-            4: (8.0, 4.0, 0.0, 1.0),
-            5: (10.0, 5.0, 0.0, 1.0),
+            1: (1.28, 1.60, 0.99, 0.02),
+            2: (1.30, 0.49, -0.99, 0.02),
+            3: (1.31, -0.49, -0.66, 0.74),
+            4: (2.48, 1.65, -0.99, 0.11),
+            5: (2.46, 0.51, -0.99, 0.02),
+            6: (2.41, -0.62, -0.99, 0.01),
+            7: (3.65, 1.61, -0.99, 0.06),
+            8: (3.91, 0.51, 0.99, 0.02),
+            9: (3.76, -0.67, -0.99, 0.0)
         }
 
         x, y, z, w = table_positions.get(table_number, (0.0, 0.0, 0.0, 1.0))
@@ -319,6 +358,8 @@ class OrderServiceServer(Node):
     def result_callback(self, future):
         self.get_logger().info("Goal result: TurtleBot has reached the table.")
 
+        global robot_arrived
+        robot_arrived = True
 
 class SettlementWindow(QDialog):
     def __init__(self, orders, completed_orders, total_price):
