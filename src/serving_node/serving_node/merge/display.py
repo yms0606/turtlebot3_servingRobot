@@ -1,6 +1,5 @@
 import sys
 import threading
-from datetime import datetime
 import rclpy
 import matplotlib as mpl
 from rclpy.node import Node
@@ -13,7 +12,8 @@ from matplotlib import pyplot as plt
 from collections import Counter
 from serving_interface.srv import Order
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 """기본 설정"""
 today_day = datetime.now().strftime("%y%m%d")
@@ -21,6 +21,7 @@ conn = None
 cursor = None
 today_count = None
 robot_arrived = False
+start_time = None
 """========"""
 
 class KitchenDisplay(QWidget):
@@ -42,7 +43,7 @@ class KitchenDisplay(QWidget):
 
     def init_ros2_server(self):
         global conn, cursor, today_count
-        conn = sqlite3.connect("../../../ServingRobotDB.db",check_same_thread=False)
+        conn = sqlite3.connect("ServingRobotDB.db",check_same_thread=False)
         cursor = conn.cursor()
         query = f"SELECT COUNT(*) FROM menu_order WHERE order_number LIKE '{today_day}%'"
         cursor.execute(query)
@@ -311,6 +312,9 @@ class OrderServiceServer(Node):
     def send_goal(self, table_number):
         self.action_client.wait_for_server()
         self.get_logger().info(f"Sending TurtleBot to table {table_number}")
+        
+        global start_time
+        start_time = str(datetime.now().strftime())
 
         goal_msg = NavigateToPose.Goal()
         goal_msg.pose = self.get_table_pose(table_number)
@@ -358,8 +362,14 @@ class OrderServiceServer(Node):
     def result_callback(self, future):
         self.get_logger().info("Goal result: TurtleBot has reached the table.")
 
-        global robot_arrived
+        global robot_arrived, start_time, cursor, conn
         robot_arrived = True
+
+        end_time = str(datetime.now())
+        query = f"INSERT INTO moving VALUES ('{start_time}','{end_time}')"
+        cursor.execute(query)
+        conn.commit()
+
 
 class SettlementWindow(QDialog):
     def __init__(self, orders, completed_orders, total_price):
@@ -402,44 +412,132 @@ class SettlementWindow(QDialog):
         """
         메뉴별 판매 건수를 그래프로 표시합니다.
         """
-
-        # 메뉴별 판매 건수 계산
-        menu_counts = Counter(menu for _, menu_price_pairs in self.orders for menu, _ in menu_price_pairs)
-
         # 한글 깨짐 방지
-        plt.rcParams["font.family"] = 'NanumGothic'
-        mpl.rcParams['axes.unicode_minus'] = False  # 마이너스 폰트 깨짐 방지
+        #plt.rcParams["font.family"] = 'NanumGothic'
+        #mpl.rcParams['axes.unicode_minus'] = False  # 마이너스 폰트 깨짐 방지
+        mpl.use('Qt5Agg')
 
-        # 그래프 생성
-        plt.figure(figsize=(10, 6))
-        plt.bar(menu_counts.keys(), menu_counts.values(), color='skyblue')
-        plt.title("메뉴별 판매 건수", fontsize=16)
-        plt.xlabel("메뉴", fontsize=12, )
-        plt.ylabel("판매 건수", fontsize=12)
-        plt.xticks(rotation=45, ha="right")
-        plt.yticks(range(0, max(menu_counts.values()) + 1))  # 정수로 눈금 설정
+        total_prices_day, today_dates = self.cal_per_day()
+        total_prices_mon, today_months = self.cal_per_month()
+
+        plt.figure(figsize=(10,6))
+        plt.subplot(1,2,1)
+        plt.plot(today_dates, total_prices_day)
+        plt.title("sales per day")
+        plt.xlabel("days")
+        plt.ylabel("sales(won)")
+        plt.subplot(1,2,2)
+        plt.plot(today_months, total_prices_mon)
+        plt.title("sales per month")
+        plt.xlabel("months")
         plt.tight_layout()
         plt.show()
 
 
-if __name__ == '__main__':
+        # # 메뉴별 판매 건수 계산
+        # menu_counts = Counter(menu for _, menu_price_pairs in self.orders for menu, _ in menu_price_pairs)
+
+
+        # # 그래프 생성
+        # plt.figure(figsize=(10, 6))
+        # plt.bar(menu_counts.keys(), menu_counts.values(), color='skyblue')
+        # plt.title("메뉴별 판매 건수", fontsize=16)
+        # plt.xlabel("메뉴", fontsize=12, )
+        # plt.ylabel("판매 건수", fontsize=12)
+        # plt.xticks(rotation=45, ha="right")
+        # plt.yticks(range(0, max(menu_counts.values()) + 1))  # 정수로 눈금 설정
+        # plt.tight_layout()
+        # plt.show()
+
+    def cal_per_day(self):
+        
+        global cursor
+
+        total_prices = []
+        today_dates = []
+
+        for i in range(5):
+            today = (datetime.now() + timedelta(days=-i)).strftime("%y%m%d")
+            qeury = f"SELECT * FROM menu_order WHERE order_number LIKE '{today}%'"
+            cursor.execute(qeury)
+            orders = cursor.fetchall()
+            today_dates.append(today)
+            if len(orders) == 0 :
+                total_prices.append(0)
+            else:
+                sum = 0
+                for order in orders:
+                    menu_list = order[2]
+                    menu_list = menu_list.split(',')
+
+                    for menu in menu_list:
+                        qeury = f"SELECT price FROM menu WHERE name='{menu}'"
+                        cursor.execute(qeury)
+                        price = cursor.fetchone()[0]
+                        sum += price
+                total_prices.append(sum)
+        
+        total_prices.reverse()
+        today_dates.reverse()
+
+        return total_prices, today_dates
+
+    def cal_per_month(self):
+        
+        global cursor
+
+        total_prices = []
+        today_months = []
+
+        for i in range(5):
+            today = (datetime.now() - relativedelta(months=i)).strftime("%y%m")
+            qeury = f"SELECT * FROM menu_order WHERE order_number LIKE '{today}%'"
+            cursor.execute(qeury)
+            orders = cursor.fetchall()
+            today_months.append(today)
+            if len(orders) == 0 :
+                total_prices.append(0)
+            else:
+                sum = 0
+                for order in orders:
+                    menu_list = order[2]
+                    menu_list = menu_list.split(',')
+
+                    for menu in menu_list:
+                        qeury = f"SELECT price FROM menu WHERE name='{menu}'"
+                        cursor.execute(qeury)
+                        price = cursor.fetchone()[0]
+                        sum += price
+                total_prices.append(sum)
+        
+        total_prices.reverse()
+        today_months.reverse()
+
+        return total_prices, today_months
+
+
+def main(args=None):
+    global conn
     app = QApplication(sys.argv)
     kitchen_display = KitchenDisplay()
     kitchen_display.show()
+    sys.exit(app.exec_())
+    conn.close()
+
+
+if __name__ == '__main__':
+    main()
 
     # kitchen_display.add_order(1, [("김치찌개", 7000), ("된장찌개", 6000)])
     # kitchen_display.add_order(5, [("해물탕", 25000)])
     # kitchen_display.add_order(8, [("계란말이", 8000), ("라면", 3000), ("무구리", 35000)])
     # kitchen_display.add_order(9, [("소주", 4000), ("콜라", 2000)])
     # kitchen_display.add_order(4, [("짜파구리", 9000)])
-
-    
     # kitchen_display.add_order(2, [("양파", 1000), ("공기밥", 1000)])
     # kitchen_display.add_order(3, [("먹태", 6000), ("짜파구리", 9000), ("오뎅탕", 15000), ("된장찌개", 6000)])
     # kitchen_display.add_order(7, [("과자 리필", 0), ("소주", 4000), ("맥주", 4000), ("파인샤베트", 5000), ("된장찌개", 6000), ("콜라", 2000)])
     # kitchen_display.add_order(5, [("계란말이", 8000), ("라면", 3000), ("무구리", 35000)])
 
-    sys.exit(app.exec_())
-    cursor.close()
+
     
 

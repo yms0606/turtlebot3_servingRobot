@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from rcl_interfaces.msg import Log
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from serving_interface.srv import ServingStatus
 import math
 
@@ -18,16 +18,14 @@ class TurtleBotClient(Node):
 
         self.req = ServingStatus.Request()
 
-
-        
-        self.sub_current_pose = self.create_subscription(
-            Odometry, '/odom', self.odom_callback, 10
-        )
-
         # Goal successed
         self.sub_current_status = self.create_subscription(
             Log, 'rosout', self.goal_status_callback, 10
         )
+
+
+        self.initial_pose_sub = self.create_subscription(
+            PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, 10)
 
 
         #초기 위치로
@@ -41,6 +39,10 @@ class TurtleBotClient(Node):
 
         self.to_initial_pose()
 
+
+        # self.sub_current_pose = self.create_subscription(
+        #     Odometry, '/odom', self.odom_callback, 10
+        # )
         # self.current_position = None  # To store the current position of the robot
 
         # # Table positions (x, y) for each table (from the provided data)
@@ -68,6 +70,8 @@ class TurtleBotClient(Node):
         if "Goal succeeded" in msg.msg:
             self.get_logger().info("목표 지점 도달")
             self.send_goal_status(True)
+        else:
+            self.get_logger().error('Service call failed: goal_status_callback')
     
     def send_goal_status(self, is_arrived):
         self.req.is_arrived = is_arrived
@@ -75,43 +79,47 @@ class TurtleBotClient(Node):
         self.future.add_done_callback(self.response_callback)
 
     def response_callback(self, future):
-        
         if future.result():
             response = future.result()
             if response.get_back:
                 self.get_logger().info("초기위치로")
                 self.to_initial_pose()
+            else:
+                self.get_logger().error('Service call failed: response_callback')
 
     def to_initial_pose(self):
         self.get_logger().info("이동 중 . . . ")
         self.initial_pose.header.stamp = self.get_clock().now().to_msg()
         self.pub_initial_pose.publish(self.initial_pose)
 
+    def amcl_pose_callback(self,msg):
+        pose_msg = msg
+        self.get_logger().debug(f"{pose_msg.pose.pose.position.x},{pose_msg.pose.pose.position.y}")
 
-    def update_destination(self):
-        """Update the destination by applying the offset."""
-        original_pos = self.table_positions[self.destination_table]
-        self.destination_rviz = (
-            original_pos[0] + self.destination_offset[0],
-            original_pos[1] + self.destination_offset[1]
-        )
+    # def update_destination(self):
+    #     """Update the destination by applying the offset."""
+    #     original_pos = self.table_positions[self.destination_table]
+    #     self.destination_rviz = (
+    #         original_pos[0] + self.destination_offset[0],
+    #         original_pos[1] + self.destination_offset[1]
+    #     )
 
-    def odom_callback(self, msg):
-        """Callback to update the current position of the robot."""
-        self.current_position = (
-            msg.pose.pose.position.x,
-            msg.pose.pose.position.y
-        )
+    # def odom_callback(self, msg):
+    #     """Callback to update the current position of the robot."""
+    #     self.current_position = (
+    #         msg.pose.pose.position.x,
+    #         msg.pose.pose.position.y
+    #     )
 
-    def is_at_destination(self):
-        """Check if the robot is at the destination."""
-        if self.current_position is None:
-            return False
-        dest_x, dest_y = self.destination_rviz
-        current_x, current_y = self.current_position
-        distance = math.sqrt((current_x - dest_x)**2 + (current_y - dest_y)**2)
-        self.get_logger().info(f'Distance to destination: {distance}')
-        return distance < 0.6  # Threshold for arrival (in meters)
+    # def is_at_destination(self):
+    #     """Check if the robot is at the destination."""
+    #     if self.current_position is None:
+    #         return False
+    #     dest_x, dest_y = self.destination_rviz
+    #     current_x, current_y = self.current_position
+    #     distance = math.sqrt((current_x - dest_x)**2 + (current_y - dest_y)**2)
+    #     self.get_logger().info(f'Distance to destination: {distance}')
+    #     return distance < 0.6  # Threshold for arrival (in meters)
 
     def send_request(self):
         """Send the arrival status to the server."""
@@ -132,15 +140,7 @@ def main(args=None):
 
     while rclpy.ok():
         rclpy.spin_once(client)
-        if client.is_at_destination():
-            # Send request to server when at destination
-            response = client.send_request()
-            if response.get_back:
-                client.get_logger().info('Server requested return to start position.')
-            else:
-                client.get_logger().info('No return requested.')
-            break
-
+        
     rclpy.shutdown()
 
 

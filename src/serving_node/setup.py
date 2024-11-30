@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+import glob
+import os
 
 package_name = 'serving_node'
 
@@ -10,16 +12,20 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/launch', glob.glob(os.path.join('launch', '*.launch.py'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='yms',
     maintainer_email='ymsix0622@gmail.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='serving robot package',
+    license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'order=serving_node.merge.order:main',
+            'display=serving_node.merge.display:main',
+            'robot=serving_node.merge.robot:main',
         ],
     },
 )
