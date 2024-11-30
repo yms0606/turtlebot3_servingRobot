@@ -24,11 +24,11 @@ class ROS2OrderClient(Node):
         self.ui_window = ui_window
         self.srv = self.create_service(ServingStatus, 'serving_status', self.handle_serving_status)
 
-        #self.initial_pose_sub = self.create_subscription(
-        #    PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, 10)
+        self.initial_pose_sub = self.create_subscription(
+            PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, 10)
         
-        #self.x = 0.0
-        #self.y = 0.0
+        self.x = 0.0
+        self.y = 0.0
 
         while not self.client.wait_for_service(timeout_sec = 1.0):
             self.get_logger().info('Waiting for order...')
@@ -38,16 +38,18 @@ class ROS2OrderClient(Node):
     def handle_serving_status(self, request, response):
         """Handle serving status and show popup when robot arrives."""
         if request.is_arrived:
-            self.get_logger().info('Robot has arrived at the destination.')
 
-            #def send_response_after_popup():
-            #    response.get_back = True
-
-            self.ui_window.show_popup()  # 테이블 오더 화면에 팝업 띄우기
+            if abs(self.x) < 0.5 and abs(self.y) < 0.5:
+                self.get_logger().info("arrived initial pose")
+                response.get_back = False
+            else:
+                self.get_logger().info("arrived table")
+                self.ui_window.show_popup()  # 테이블 오더 화면에 팝업 띄우기
+                response.get_back = True
         else:
             self.get_logger().info('Robot has not arrived yet.')
 
-        response.get_back = True
+        
         return response
     #NEW
 
@@ -82,13 +84,18 @@ class ROS2OrderClient(Node):
             response = res.result()
             is_accept = True
         else:
-            self.get_logger().error('Service call failed')
+            self.get_logger().error('Service call failed: callback_request')
             is_accept = False
+    
+    def amcl_pose_callback(self,msg):
+        pose_msg = msg
+        self.x = pose_msg.pose.pose.position.x
+        self.y = pose_msg.pose.pose.position.y
         
 
 
 class TableOrderApp(QMainWindow):
-    def __init__(self, menu_files):
+    def __init__(self):
         super().__init__()
         self.setWindowTitle("부리부리대마왕포차")
         self.setGeometry(100, 100, 1200, 800)
@@ -97,7 +104,7 @@ class TableOrderApp(QMainWindow):
         self.ros2_thread.start()
 
         # 메뉴 데이터 로드
-        self.menu_data = self.load_menu_data(menu_files)
+        self.menu_data = self.load_menu_data()
         self.current_category = None
 
         # 장바구니 데이터
@@ -242,7 +249,7 @@ class TableOrderApp(QMainWindow):
         self.ros2_client = ROS2OrderClient(self)
         rclpy.spin(self.ros2_client)
 
-    def load_menu_data(self, menu_files):
+    def load_menu_data(self):
         """메뉴 파일에서 카테고리와 메뉴 데이터를 로드"""
         menu_data = {}
         menu_data['메인메뉴'] = []
@@ -264,7 +271,7 @@ class TableOrderApp(QMainWindow):
         #                 print(f"잘못된 데이터 무시: {line}")
         #                 continue
         
-        conn = sqlite3.connect("../../../ServingRobotDB.db")
+        conn = sqlite3.connect("ServingRobotDB.db")
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM menu")
         datas = cursor.fetchall()
@@ -301,7 +308,7 @@ class TableOrderApp(QMainWindow):
 
             # 메뉴 카드 추가
 
-            conn = sqlite3.connect("../../../ServingRobotDB.db")
+            conn = sqlite3.connect("ServingRobotDB.db")
             cursor = conn.cursor()
 
             item_grid = QGridLayout()
@@ -535,9 +542,12 @@ class TableOrderApp(QMainWindow):
         #popup.close()
 
 
-if __name__ == "__main__":
-    menu_files = ["메인 메뉴.txt", "사이드 메뉴.txt", "주류.txt","음료.txt"]
+def main(args=None):
     app = QApplication(sys.argv)
-    window = TableOrderApp(menu_files)
+    window = TableOrderApp()
     window.show()
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
