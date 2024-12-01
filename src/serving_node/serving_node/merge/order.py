@@ -9,10 +9,18 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt, QByteArray, QBuffer
 from rclpy.node import Node
+from rclpy.qos import *
 from serving_interface.srv import Order
 from serving_interface.srv import ServingStatus
 from geometry_msgs.msg import PoseWithCovarianceStamped
 import time
+
+
+qos_profile_pose = QoSProfile(
+    history=QoSHistoryPolicy.KEEP_LAST, depth=10,     # 10개 정도의 데이터 유지
+    reliability=QoSReliabilityPolicy.BEST_EFFORT,     # 속도 중시
+    durability=QoSDurabilityPolicy.VOLATILE,          # 섭스크라이버 생선 전 데이터 무효
+)
 
 is_accept = False
 
@@ -25,27 +33,31 @@ class ROS2OrderClient(Node):
         self.srv = self.create_service(ServingStatus, 'serving_status', self.handle_serving_status)
 
         self.initial_pose_sub = self.create_subscription(
-            PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, 10)
+            PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, qos_profile=qos_profile_pose)
         
         self.x = 0.0
         self.y = 0.0
 
         while not self.client.wait_for_service(timeout_sec = 1.0):
-            self.get_logger().info('Waiting for order...')
+            self.get_logger().warn('Waiting for order...')
         
 
     #NEW
     def handle_serving_status(self, request, response):
         """Handle serving status and show popup when robot arrives."""
         if request.is_arrived:
+            
+            self.get_logger().info("arrived table")
+            self.ui_window.show_popup()
+            response.get_back = True
 
-            if abs(self.x) < 0.5 and abs(self.y) < 0.5:
-                self.get_logger().info("arrived initial pose")
-                response.get_back = False
-            else:
-                self.get_logger().info("arrived table")
-                self.ui_window.show_popup()  # 테이블 오더 화면에 팝업 띄우기
-                response.get_back = True
+            # if abs(self.x) < 0.5 and abs(self.y) < 0.5:
+            #     self.get_logger().info("arrived initial pose")
+            #     response.get_back = False
+            # else:
+            #     self.get_logger().info("arrived table")
+            #     self.ui_window.show_popup()  # 테이블 오더 화면에 팝업 띄우기
+            #     response.get_back = True
         else:
             self.get_logger().info('Robot has not arrived yet.')
 
