@@ -1,10 +1,18 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import *
 from rcl_interfaces.msg import Log
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from serving_interface.srv import ServingStatus
 import math
+
+qos_profile_pose = QoSProfile(
+    history=QoSHistoryPolicy.KEEP_LAST, depth=10,     # 10개 정도의 데이터 유지
+    reliability=QoSReliabilityPolicy.BEST_EFFORT,     # 속도 중시
+    durability=QoSDurabilityPolicy.VOLATILE,          # 섭스크라이버 생선 전 데이터 무효
+    
+)
 
 
 class TurtleBotClient(Node):
@@ -13,7 +21,7 @@ class TurtleBotClient(Node):
         # Create service client
         self.client = self.create_client(ServingStatus, 'serving_status')
         while not self.client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('Waiting for Table Order Server...')
+            self.get_logger().warn('Waiting for Table Order Server...')
         self.get_logger().info('Connected to Table Order Server!')
 
         self.req = ServingStatus.Request()
@@ -23,9 +31,10 @@ class TurtleBotClient(Node):
             Log, 'rosout', self.goal_status_callback, 10
         )
 
-
+        self.x = 0.0
+        self.y = 0.0
         self.initial_pose_sub = self.create_subscription(
-            PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, 10)
+            PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, qos_profile=qos_profile_pose)
 
 
         #초기 위치로
@@ -69,7 +78,12 @@ class TurtleBotClient(Node):
         
         if "Goal succeeded" in msg.msg:
             self.get_logger().info("목표 지점 도달")
-            self.send_goal_status(True)
+
+            if abs(self.x) < 0.5 and abs(self.y) < 0.5:
+                self.get_logger().info("arrived initial pose")
+            else:
+                self.get_logger().info("arrived table")
+                self.send_goal_status(True)
         else:
             self.get_logger().error('Service call failed: goal_status_callback')
     
@@ -94,7 +108,9 @@ class TurtleBotClient(Node):
 
     def amcl_pose_callback(self,msg):
         pose_msg = msg
-        self.get_logger().debug(f"{pose_msg.pose.pose.position.x},{pose_msg.pose.pose.position.y}")
+        self.x = pose_msg.pose.pose.position.x
+        self.y = pose_msg.pose.pose.position.y
+        self.get_logger().debug(f"{self.x},{self.y}")
 
     # def update_destination(self):
     #     """Update the destination by applying the offset."""
