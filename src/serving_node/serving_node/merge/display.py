@@ -296,7 +296,7 @@ class OrderServiceServer(Node):
         today_count +=1
         order_number = int(today_day+str(today_count))
         table_number = request.table_num
-        order_time = datetime.now().strftime("%y%m%d %H%M%S")
+        order_time = str(datetime.now())#.strftime("%y%m%d %H%M%S")
 
         query = f"INSERT INTO menu_order VALUES ({order_number},'{order_time}','{menu_string}',{table_number})"
         cursor.execute(query)
@@ -314,7 +314,7 @@ class OrderServiceServer(Node):
         self.get_logger().info(f"Sending TurtleBot to table {table_number}")
         
         global start_time
-        start_time = str(datetime.now().strftime())
+        start_time = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
         goal_msg = NavigateToPose.Goal()
         goal_msg.pose = self.get_table_pose(table_number)
