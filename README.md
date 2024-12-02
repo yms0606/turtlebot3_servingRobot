@@ -12,6 +12,10 @@ This project simulates a robotic waiter that navigates and serves in a virtual e
 - **User Interface**: Developed with PyQt5 for an interactive and user-friendly control system.
 - **Database Integration**: SQLite for storing and managing orders and robot logs.
 - **ROS2 Communication**: Ensures efficient message passing between modules.
+
+- **Communication flow**
+
+   ![image](https://github.com/user-attachments/assets/9e59d293-31a2-4d0b-9c23-1b3ebafefc5a)
 ### <br>
 ## 👨‍💻 Contributors
 A big thank you to everyone who made this project possible! 🎉  
