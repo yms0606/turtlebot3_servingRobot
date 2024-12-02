@@ -6,6 +6,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from serving_interface.srv import ServingStatus
 import math
+import cv2
 
 qos_profile_pose = QoSProfile(
     history=QoSHistoryPolicy.KEEP_LAST, depth=10,     # 10개 정도의 데이터 유지
@@ -36,7 +37,8 @@ class TurtleBotClient(Node):
         self.initial_pose.pose.orientation.z = 0.0
         self.initial_pose.pose.orientation.w = 0.0
 
-        self.to_initial_pose()
+        for _ in range(5):
+            self.to_initial_pose()
 
 
         # Goal successed
@@ -102,6 +104,7 @@ class TurtleBotClient(Node):
             if response.get_back:
                 self.get_logger().info("초기위치로")
                 self.to_initial_pose()
+                
             else:
                 self.get_logger().error('Service call failed: response_callback')
 
