@@ -14,6 +14,7 @@ from serving_interface.srv import Order
 import sqlite3
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+import seaborn as sns
 
 """기본 설정"""
 today_day = datetime.now().strftime("%y%m%d")
@@ -314,7 +315,7 @@ class OrderServiceServer(Node):
         self.get_logger().info(f"Sending TurtleBot to table {table_number}")
         
         global start_time
-        start_time = str(datetime.now().strftime())
+        start_time = str(datetime.now())
 
         goal_msg = NavigateToPose.Goal()
         goal_msg.pose = self.get_table_pose(table_number)
@@ -419,19 +420,58 @@ class SettlementWindow(QDialog):
 
         total_prices_day, today_dates = self.cal_per_day()
         total_prices_mon, today_months = self.cal_per_month()
+        menu_cat, menu_count = self.cal_per_menu()
 
-        plt.figure(figsize=(10,6))
-        plt.subplot(1,2,1)
-        plt.plot(today_dates, total_prices_day)
-        plt.title("sales per day")
-        plt.xlabel("days")
-        plt.ylabel("sales(won)")
-        plt.subplot(1,2,2)
-        plt.plot(today_months, total_prices_mon)
-        plt.title("sales per month")
-        plt.xlabel("months")
-        plt.tight_layout()
+        sns.set_style("whitegrid")
+        plt.figure(figsize=(15, 6))
+
+        # 일별 매출 그래프
+        plt.subplot(1, 3, 1)
+        plt.plot(today_dates, total_prices_day, marker='o', linestyle='-', color='steelblue', label='Daily Sales')
+        plt.title("Sales per Day", fontsize=14, fontweight='bold', color='darkblue')
+        plt.xlabel("Days", fontsize=12)
+        plt.ylabel("Sales (₩)", fontsize=12)
+        plt.xticks(fontsize=10)
+        plt.yticks(fontsize=10)
+        plt.grid(alpha=0.6)
+        plt.legend(fontsize=10)
+
+        # 월별 매출 그래프
+        plt.subplot(1, 3, 2)
+        plt.plot(today_months, total_prices_mon, marker='s', linestyle='-', color='coral', label='Monthly Sales')
+        plt.title("Sales per Month", fontsize=14, fontweight='bold', color='darkblue')
+        plt.xlabel("Months", fontsize=12)
+        plt.xticks(fontsize=10)
+        plt.grid(alpha=0.6)
+        plt.legend(fontsize=10)
+
+
+        plt.subplot(1, 3, 3)
+        bars = plt.bar(menu_cat, menu_count, color=sns.color_palette("pastel"), edgecolor="black")
+        plt.title("Sales by Category", fontsize=14, fontweight='bold', color='darkblue')
+        plt.xlabel("Categories", fontsize=12)
+        plt.ylabel("Sales (Units)", fontsize=12)
+        plt.xticks(fontsize=10)
+        plt.yticks(fontsize=10)
+
+        # 전체 레이아웃 조정
+        plt.tight_layout(pad=3.0)
         plt.show()
+
+
+
+        # plt.figure(figsize=(10,6))
+        # plt.subplot(1,2,1)
+        # plt.plot(today_dates, total_prices_day)
+        # plt.title("sales per day")
+        # plt.xlabel("days")
+        # plt.ylabel("sales(won)")
+        # plt.subplot(1,2,2)
+        # plt.plot(today_months, total_prices_mon)
+        # plt.title("sales per month")
+        # plt.xlabel("months")
+        # plt.tight_layout()
+        # plt.show()
 
 
         # # 메뉴별 판매 건수 계산
@@ -514,6 +554,27 @@ class SettlementWindow(QDialog):
         today_months.reverse()
 
         return total_prices, today_months
+    
+    def cal_per_menu(self):
+
+        global cursor
+        menu_cat = []
+        menu_count = []
+        today = datetime.now().strftime("%y%m%d")
+        query = f"SELECT menu_list FROM menu_order WHERE order_number LIKE '{today}%'"
+        cursor.execute(query)
+        orders = cursor.fetchall()
+        for order in orders:
+            menu_list = order[0].split(',')
+
+            for menu in menu_list:
+                if menu not in menu_cat:
+                    menu_cat.append(menu)
+                    menu_count.append(1)
+                else:
+                    menu_count[menu_cat.index(menu)] += 1
+        
+        return menu_cat, menu_count
 
 
 def main(args=None):
