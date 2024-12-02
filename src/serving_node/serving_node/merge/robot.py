@@ -32,16 +32,6 @@ class TurtleBotClient(Node):
 
         self.req = ServingStatus.Request()
 
-        # Goal successed
-        self.sub_current_status = self.create_subscription(
-            Log, 'rosout', self.goal_status_callback, 10
-        )
-
-        self.x = 0.0
-        self.y = 0.0
-        self.initial_pose_sub = self.create_subscription(
-            PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, qos_profile=qos_profile_pose)
-
 
         #초기 위치로
         self.pub_initial_pose = self.create_publisher(PoseStamped, '/goal_pose', qos_profile=qos_profile_pub_pose)
@@ -53,6 +43,20 @@ class TurtleBotClient(Node):
         self.initial_pose.pose.orientation.w = 0.0
 
         self.to_initial_pose()
+
+
+        # Goal successed
+        self.sub_current_status = self.create_subscription(
+            Log, 'rosout', self.goal_status_callback, 10
+        )
+
+        self.x = 0.0
+        self.y = 0.0
+        self.initial_pose_sub = self.create_subscription(
+            PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, qos_profile=qos_profile_pose)
+
+
+
 
 
         # self.sub_current_pose = self.create_subscription(
@@ -108,9 +112,10 @@ class TurtleBotClient(Node):
                 self.get_logger().error('Service call failed: response_callback')
 
     def to_initial_pose(self):
-        self.get_logger().info("moving . . . ")
+
         self.initial_pose.header.stamp = self.get_clock().now().to_msg()
         self.pub_initial_pose.publish(self.initial_pose)
+        self.get_logger().info("이동 중 . . . ")
 
     def amcl_pose_callback(self,msg):
         pose_msg = msg

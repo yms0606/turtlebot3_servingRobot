@@ -297,7 +297,7 @@ class OrderServiceServer(Node):
         today_count +=1
         order_number = int(today_day+str(today_count))
         table_number = request.table_num
-        order_time = datetime.now().strftime("%y%m%d %H%M%S")
+        order_time = str(datetime.now())#.strftime("%y%m%d %H%M%S")
 
         query = f"INSERT INTO menu_order VALUES ({order_number},'{order_time}','{menu_string}',{table_number})"
         cursor.execute(query)
@@ -413,10 +413,11 @@ class SettlementWindow(QDialog):
         """
         메뉴별 판매 건수를 그래프로 표시합니다.
         """
-        # 한글 깨짐 방지
-        #plt.rcParams["font.family"] = 'NanumGothic'
-        #mpl.rcParams['axes.unicode_minus'] = False  # 마이너스 폰트 깨짐 방지
-        mpl.use('Qt5Agg')
+        #한글 깨짐 방지
+        plt.rcParams["font.family"] = 'DejaVu Sans'
+        mpl.rcParams['axes.unicode_minus'] = False  # 마이너스 폰트 깨짐 방지
+        #mpl.use('Qt5Agg')
+
 
         total_prices_day, today_dates = self.cal_per_day()
         total_prices_mon, today_months = self.cal_per_month()
@@ -445,18 +446,34 @@ class SettlementWindow(QDialog):
         plt.grid(alpha=0.6)
         plt.legend(fontsize=10)
 
-
         plt.subplot(1, 3, 3)
         bars = plt.bar(menu_cat, menu_count, color=sns.color_palette("pastel"), edgecolor="black")
         plt.title("Sales by Category", fontsize=14, fontweight='bold', color='darkblue')
         plt.xlabel("Categories", fontsize=12)
         plt.ylabel("Sales (Units)", fontsize=12)
-        plt.xticks(fontsize=10)
+
+        plt.xticks(fontsize=5)
         plt.yticks(fontsize=10)
 
         # 전체 레이아웃 조정
-        plt.tight_layout(pad=3.0)
+        #plt.tight_layout(pad=3.0)
+        #plt.rc('font', family="NanumGothic")
+
+        print(plt.rcParams["font.family"])
         plt.show()
+
+        # plt.figure(figsize=(10,6))
+        # plt.subplot(1,2,1)
+        # plt.plot(today_dates, total_prices_day)
+        # plt.title("sales per day")
+        # plt.xlabel("days")
+        # plt.ylabel("sales(won)")
+        # plt.subplot(1,2,2)
+        # plt.plot(today_months, total_prices_mon)
+        # plt.title("sales per month")
+        # plt.xlabel("months")
+        # plt.tight_layout()
+        # plt.show()
 
 
 
@@ -573,8 +590,9 @@ class SettlementWindow(QDialog):
                     menu_count.append(1)
                 else:
                     menu_count[menu_cat.index(menu)] += 1
-        
+
         return menu_cat, menu_count
+    
 
 
 def main(args=None):
