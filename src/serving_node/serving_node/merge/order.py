@@ -22,12 +22,18 @@ qos_profile_pose = QoSProfile(
     durability=QoSDurabilityPolicy.VOLATILE,          # 섭스크라이버 생선 전 데이터 무효
 )
 
+qos_order = QoSProfile(
+    history=QoSHistoryPolicy.KEEP_ALL,
+    reliability=QoSReliabilityPolicy.RELIABLE,
+    durability=QoSDurabilityPolicy.VOLATILE,
+)
+
 is_accept = False
 
 class ROS2OrderClient(Node):
     def __init__(self, ui_window):
         super().__init__('ros2_order_client')
-        self.client = self.create_client(Order, 'process_order')
+        self.client = self.create_client(Order, 'process_order',qos_profile=qos_order)
 
         self.ui_window = ui_window
         self.srv = self.create_service(ServingStatus, 'serving_status', self.handle_serving_status)
@@ -386,7 +392,7 @@ class TableOrderApp(QMainWindow):
 
     def show_popup(self):
         # 메시지 박스 생성
-        msg = QMessageBox()
+        msg = QMessageBox(self)
         msg.setWindowTitle("로봇 도착 알림")
         msg.setText("음식이 도착했습니다.\n음식을 수령하신 후 복귀 버튼을 눌러주세요!")
         msg.setIcon(QMessageBox.Information)
@@ -544,7 +550,8 @@ class TableOrderApp(QMainWindow):
             self.ros2_client.send_order(order_request)
             time.sleep(1)
             if is_accept:
-                QMessageBox.information(self, "결제 완료", "주문이 접수되었습니다!")
+                msg_box = QMessageBox(QMessageBox.Information, "결제 완료", "주문이 접수되었습니다!", parent=self)
+                msg_box.exec_()
                 self.cart.clear()
                 self.update_cart()
             else:
