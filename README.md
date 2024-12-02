@@ -22,6 +22,6 @@ A big thank you to everyone who made this project possible! 🎉
 Click on the names below to view their GitHub profiles:
 
 - [**MINSIK YOON**](https://github.com/yms0606)  
-- [**seungjoong KIM**](https://github.com/ksg5398)  
+- [**seungjoong KIM**](https://github.com/ksj5398)  
 - [**junha JANG**](https://github.com/zzangzzun)  
 - [**seunghwan JEONG**](https://github.com/JSeungHwan)
