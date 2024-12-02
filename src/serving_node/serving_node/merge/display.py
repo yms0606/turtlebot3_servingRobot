@@ -315,7 +315,7 @@ class OrderServiceServer(Node):
         self.get_logger().info(f"Sending TurtleBot to table {table_number}")
         
         global start_time
-        start_time = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        start_time = str(datetime.now())
 
         goal_msg = NavigateToPose.Goal()
         goal_msg.pose = self.get_table_pose(table_number)
@@ -451,6 +451,7 @@ class SettlementWindow(QDialog):
         plt.title("Sales by Category", fontsize=14, fontweight='bold', color='darkblue')
         plt.xlabel("Categories", fontsize=12)
         plt.ylabel("Sales (Units)", fontsize=12)
+
         plt.xticks(fontsize=5)
         plt.yticks(fontsize=10)
 
@@ -460,6 +461,21 @@ class SettlementWindow(QDialog):
 
         print(plt.rcParams["font.family"])
         plt.show()
+
+        # plt.figure(figsize=(10,6))
+        # plt.subplot(1,2,1)
+        # plt.plot(today_dates, total_prices_day)
+        # plt.title("sales per day")
+        # plt.xlabel("days")
+        # plt.ylabel("sales(won)")
+        # plt.subplot(1,2,2)
+        # plt.plot(today_months, total_prices_mon)
+        # plt.title("sales per month")
+        # plt.xlabel("months")
+        # plt.tight_layout()
+        # plt.show()
+
+
 
         # plt.figure(figsize=(10,6))
         # plt.subplot(1,2,1)
@@ -557,6 +573,7 @@ class SettlementWindow(QDialog):
         return total_prices, today_months
     
     def cal_per_menu(self):
+
         global cursor
         menu_cat = []
         menu_count = []
@@ -566,15 +583,16 @@ class SettlementWindow(QDialog):
         orders = cursor.fetchall()
         for order in orders:
             menu_list = order[0].split(',')
+
             for menu in menu_list:
                 if menu not in menu_cat:
                     menu_cat.append(menu)
                     menu_count.append(1)
                 else:
                     menu_count[menu_cat.index(menu)] += 1
+
         return menu_cat, menu_count
     
-
 
 
 def main(args=None):

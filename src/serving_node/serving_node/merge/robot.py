@@ -87,7 +87,7 @@ class TurtleBotClient(Node):
     def goal_status_callback(self, msg):
         
         if "Goal succeeded" in msg.msg:
-            self.get_logger().info("목표 지점 도달")
+            self.get_logger().info("arrvied goal")
 
             if abs(self.x) < 0.5 and abs(self.y) < 0.5:
                 self.get_logger().info("arrived initial pose")
@@ -95,7 +95,7 @@ class TurtleBotClient(Node):
                 self.get_logger().info("arrived table")
                 self.send_goal_status(True)
         #else:
-            #self.get_logger().error('Service call failed: goal_status_callback')
+        #    self.get_logger().error('Service call failed: goal_status_callback')
     
     def send_goal_status(self, is_arrived):
         self.req.is_arrived = is_arrived
@@ -106,12 +106,13 @@ class TurtleBotClient(Node):
         if future.result():
             response = future.result()
             if response.get_back:
-                self.get_logger().info("초기위치로")
+                self.get_logger().info("go to initial pose")
                 self.to_initial_pose()
             else:
                 self.get_logger().error('Service call failed: response_callback')
 
     def to_initial_pose(self):
+
         self.initial_pose.header.stamp = self.get_clock().now().to_msg()
         self.pub_initial_pose.publish(self.initial_pose)
         self.get_logger().info("이동 중 . . . ")
