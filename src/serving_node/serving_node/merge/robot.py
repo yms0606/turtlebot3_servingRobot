@@ -11,8 +11,14 @@ qos_profile_pose = QoSProfile(
     history=QoSHistoryPolicy.KEEP_LAST, depth=10,     # 10개 정도의 데이터 유지
     reliability=QoSReliabilityPolicy.BEST_EFFORT,     # 속도 중시
     durability=QoSDurabilityPolicy.VOLATILE,          # 섭스크라이버 생선 전 데이터 무효
-    
 )
+
+qos_profile_pub_pose = QoSProfile(
+    history=QoSHistoryPolicy.KEEP_LAST, depth=10,
+    reliability=QoSReliabilityPolicy.RELIABLE,
+    durability=QoSDurabilityPolicy.VOLATILE
+)
+
 
 
 class TurtleBotClient(Node):
@@ -38,7 +44,7 @@ class TurtleBotClient(Node):
 
 
         #초기 위치로
-        self.pub_initial_pose = self.create_publisher(PoseStamped, '/goal_pose', 10)
+        self.pub_initial_pose = self.create_publisher(PoseStamped, '/goal_pose', qos_profile=qos_profile_pub_pose)
         self.initial_pose = PoseStamped()
         self.initial_pose.header.frame_id = "map"
         self.initial_pose.pose.position.x = 0.0
@@ -145,8 +151,6 @@ class TurtleBotClient(Node):
         self.future = self.client.call_async(request)
         rclpy.spin_until_future_complete(self, self.future)
         return self.future.result()
-
-
 
 
 
